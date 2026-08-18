@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>萬能計算機 Universal Calculator</title>
+  <title>高級萬能計算機 Universal Calculator Pro</title>
   <style>
     :root {
-      --bg-color: #0f172a;
+      --bg-main: #0f172a;
       --panel-bg: #1e293b;
       --sidebar-bg: #0b1329;
       --accent: #3b82f6;
@@ -18,28 +18,26 @@
       --btn-hover: #475569;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { display: flex; height: 100vh; background: var(--bg-color); color: var(--text-main); overflow: hidden; }
+    body { display: flex; height: 100vh; background: var(--bg-main); color: var(--text-main); overflow: hidden; }
 
-    /* Layout */
+    /* Sidebar Layout */
     #sidebar { width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
     #sidebar .logo { padding: 20px; font-size: 1.2rem; font-weight: bold; color: var(--accent); border-bottom: 1px solid var(--border); }
     #sidebar nav { flex: 1; overflow-y: auto; padding: 10px; }
     .nav-category { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin: 15px 10px 5px; font-weight: bold; }
     .nav-btn { width: 100%; text-align: left; padding: 10px 12px; background: none; border: none; color: var(--text-muted); border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
     .nav-btn:hover { background: var(--panel-bg); color: var(--text-main); }
-    .nav-btn.active { background: var(--accent); color: white; font-weight: bold; }
+    .nav-btn.active { background: var(--accent); color: #fff; font-weight: bold; }
 
+    /* Content Area */
     #main-content { flex: 1; overflow-y: auto; padding: 30px; position: relative; }
     .page { display: none; height: 100%; flex-direction: column; gap: 20px; }
     .page.active { display: flex; }
     .page-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
 
-    /* Common UI Elements */
+    /* Components & UI */
     .card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
     .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    
     input, select, button { background: var(--btn-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px 14px; border-radius: 6px; font-size: 1rem; outline: none; }
     input:focus, select:focus { border-color: var(--accent); }
     button { cursor: pointer; transition: 0.2s; }
@@ -51,79 +49,73 @@
     .form-group label { font-size: 0.85rem; color: var(--text-muted); }
     .result-box { background: #0f172a; padding: 15px; border-radius: 6px; border: 1px solid var(--border); font-family: monospace; font-size: 1.1rem; }
 
-    /* Scientific Calculator Style */
-    .calc-display { background: #000; color: #0f0; font-family: monospace; font-size: 2rem; padding: 15px; text-align: right; border-radius: 6px; min-height: 70px; word-wrap: break-word; margin-bottom: 15px; }
+    /* Calculator Specifics */
+    .calc-display { background: #000; color: #10b981; font-family: monospace; font-size: 2.2rem; padding: 15px; text-align: right; border-radius: 6px; min-height: 75px; word-wrap: break-word; margin-bottom: 15px; }
     .calc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
   </style>
 </head>
 <body>
 
+  <!-- 側邊欄選單 -->
   <aside id="sidebar">
-    <div class="logo">萬能計算機 Universal</div>
+    <div class="logo">萬能計算機 Pro</div>
     <nav>
-      <div class="nav-category">核心工具</div>
-      <button class="nav-btn active" onclick="showPage('page-calc')">工程與標準計算機</button>
-      <button class="nav-btn" onclick="showPage('page-converter')">全能單位換算器</button>
-      <button class="nav-btn" onclick="showPage('page-graph')">2D 函數繪圖儀</button>
+      <div class="nav-category">核心運算</div>
+      <button class="nav-btn active" onclick="switchTab('page-calc', event)">工程與標準計算機</button>
+      <button class="nav-btn" onclick="switchTab('page-converter', event)">全能單位換算器</button>
+      <button class="nav-btn" onclick="switchTab('page-graph', event)">2D 函數繪圖儀</button>
 
-      <div class="nav-category">專業領域</div>
-      <button class="nav-btn" onclick="showPage('page-finance')">理財與投資試算</button>
-      <button class="nav-btn" onclick="showPage('page-programmer')">程式員與進位進階</button>
-      <button class="nav-btn" onclick="showPage('page-stats')">數據統計與數論</button>
-
-      <div class="nav-category">生活應用</div>
-      <button class="nav-btn" onclick="showPage('page-physics')">幾何與物理公式</button>
-      <button class="nav-btn" onclick="showPage('page-health')">健康體脂與 TDEE</button>
-      <button class="nav-btn" onclick="showPage('page-date')">日期天數與推算</button>
+      <div class="nav-category">專業工具</div>
+      <button class="nav-btn" onclick="switchTab('page-finance', event)">理財與複利試算</button>
+      <button class="nav-btn" onclick="switchTab('page-programmer', event)">程式員進位轉換</button>
+      <button class="nav-btn" onclick="switchTab('page-stats', event)">數據數論驗證</button>
     </nav>
   </aside>
 
+  <!-- 主要工作區 -->
   <main id="main-content">
 
     <!-- 1. 工程與標準計算機 -->
     <div id="page-calc" class="page active">
       <div class="page-title">工程與標準計算機</div>
-      <div class="card" style="max-width: 600px; margin: 0 auto; width: 100%;">
+      <div class="card" style="max-width: 550px; margin: 0 auto; width: 100%;">
         <div id="calc-display" class="calc-display">0</div>
         <div class="calc-grid">
-          <button onclick="calcInput('degRad')">DEG/RAD</button>
-          <button onclick="calcInput('sin(')">sin</button>
-          <button onclick="calcInput('cos(')">cos</button>
-          <button onclick="calcInput('tan(')">tan</button>
-          <button onclick="calcClear()">C</button>
+          <button onclick="pressCalc('sin(')">sin</button>
+          <button onclick="pressCalc('cos(')">cos</button>
+          <button onclick="pressCalc('tan(')">tan</button>
+          <button onclick="clearCalc()">C</button>
+          <button onclick="backspaceCalc()">DEL</button>
 
-          <button onclick="calcInput('pi')">π</button>
-          <button onclick="calcInput('e')">e</button>
-          <button onclick="calcInput('log(')">log</button>
-          <button onclick="calcInput('ln(')">ln</button>
-          <button onclick="calcBack()">DEL</button>
+          <button onclick="pressCalc('pi')">π</button>
+          <button onclick="pressCalc('e')">e</button>
+          <button onclick="pressCalc('log(')">log</button>
+          <button onclick="pressCalc('ln(')">ln</button>
+          <button onclick="pressCalc('/')">÷</button>
 
-          <button onclick="calcInput('^')">x^y</button>
-          <button onclick="calcInput('sqrt(')">√</button>
-          <button onclick="calcInput('(')">(</button>
-          <button onclick="calcInput(')')">)</button>
-          <button onclick="calcInput('/')">÷</button>
+          <button onclick="pressCalc('^')">x^y</button>
+          <button onclick="pressCalc('sqrt(')">√</button>
+          <button onclick="pressCalc('(')">(</button>
+          <button onclick="pressCalc(')')">)</button>
+          <button onclick="pressCalc('*')">×</button>
 
-          <button onclick="calcInput('7')">7</button>
-          <button onclick="calcInput('8')">8</button>
-          <button onclick="calcInput('9')">9</button>
-          <button onclick="calcInput('*')">×</button>
-          <button onclick="calcInput('!')">n!</button>
+          <button onclick="pressCalc('7')">7</button>
+          <button onclick="pressCalc('8')">8</button>
+          <button onclick="pressCalc('9')">9</button>
+          <button onclick="pressCalc('-')">-</button>
+          <button onclick="pressCalc('%')">%</button>
 
-          <button onclick="calcInput('4')">4</button>
-          <button onclick="calcInput('5')">5</button>
-          <button onclick="calcInput('6')">6</button>
-          <button onclick="calcInput('-')">-</button>
-          <button onclick="calcInput('%')">%</button>
+          <button onclick="pressCalc('4')">4</button>
+          <button onclick="pressCalc('5')">5</button>
+          <button onclick="pressCalc('6')">6</button>
+          <button onclick="pressCalc('+')">+</button>
+          <button class="primary" style="grid-row: span 2;" onclick="evalCalc()">=</button>
 
-          <button onclick="calcInput('1')">1</button>
-          <button onclick="calcInput('2')">2</button>
-          <button onclick="calcInput('3')">3</button>
-          <button onclick="calcInput('+')">+</button>
-          <button class="primary" style="grid-row: span 2;" onclick="calcEquals()">=</button>
-
-          <button onclick="calcInput('0')" style="grid-column: span 2;">0</button>
-          <button onclick="calcInput('.')">.</button>
+          <button onclick="pressCalc('1')">1</button>
+          <button onclick="pressCalc('2')">2</button>
+          <button onclick="pressCalc('3')">3</button>
+          <button onclick="pressCalc('0')" style="grid-column: span 2;">0</button>
+          <button onclick="pressCalc('.')">.</button>
         </div>
       </div>
     </div>
@@ -133,24 +125,23 @@
       <div class="page-title">全能單位換算器</div>
       <div class="card grid-2">
         <div class="form-group">
-          <label>選擇類別</label>
-          <select id="unit-cat" onchange="initUnits()">
+          <label>換算類別</label>
+          <select id="unit-cat" onchange="updateUnitOptions()">
             <option value="length">長度</option>
             <option value="weight">重量</option>
-            <option value="temp">溫度</option>
             <option value="area">面積</option>
           </select>
         </div>
         <div></div>
         <div class="form-group">
-          <label>數值 (來源)</label>
-          <input type="number" id="unit-val1" value="1" oninput="convertUnit()" />
-          <select id="unit-type1" onchange="convertUnit()"></select>
+          <label>數值 (輸入)</label>
+          <input type="number" id="unit-v1" value="1" oninput="execUnitConvert()" />
+          <select id="unit-u1" onchange="execUnitConvert()"></select>
         </div>
         <div class="form-group">
           <label>轉換結果</label>
-          <input type="number" id="unit-val2" readonly />
-          <select id="unit-type2" onchange="convertUnit()"></select>
+          <input type="number" id="unit-v2" readonly />
+          <select id="unit-u2" onchange="execUnitConvert()"></select>
         </div>
       </div>
     </div>
@@ -160,17 +151,17 @@
       <div class="page-title">2D 函數繪圖儀</div>
       <div class="card grid-2" style="align-items: center;">
         <div class="form-group">
-          <label>輸入 $f(x)$ 函數 (例如：Math.sin(x), x*x - 4)</label>
+          <label>方程式 $f(x)$ (例如：Math.sin(x), x*x - 2)</label>
           <input type="text" id="graph-expr" value="Math.sin(x)" />
         </div>
-        <button class="primary" onclick="drawGraph()">繪製圖形</button>
+        <button class="primary" onclick="renderGraph()">繪製圖形</button>
       </div>
-      <div class="card" style="flex: 1; min-height: 350px; display: flex; justify-content: center; align-items: center;">
-        <canvas id="graph-canvas" width="600" height="350" style="background:#000; border-radius:6px;"></canvas>
+      <div class="card" style="flex: 1; min-height: 320px; display: flex; justify-content: center; align-items: center;">
+        <canvas id="graph-canvas" width="600" height="320" style="background:#000; border-radius:6px;"></canvas>
       </div>
     </div>
 
-    <!-- 4. 理財與投資試算 -->
+    <!-- 4. 理財與複利試算 -->
     <div id="page-finance" class="page">
       <div class="page-title">理財與投資試算</div>
       <div class="grid-2">
@@ -183,266 +174,195 @@
           <label>貸款年限 (年)</label>
           <input type="number" id="loan-years" value="30" />
           <button class="primary" onclick="calcLoan()">計算每月還款</button>
-          <div id="loan-result" class="result-box" style="margin-top:10px;">每月還款：- 元</div>
+          <div id="loan-result" class="result-box">每月還款：- 元</div>
         </div>
 
         <div class="card form-group">
           <h3>定期定額複利試算</h3>
           <label>每月投資金額 (元)</label>
-          <input type="number" id="compound-monthly" value="10000" />
+          <input type="number" id="comp-m" value="10000" />
           <label>預期年化報酬率 (%)</label>
-          <input type="number" id="compound-rate" step="0.1" value="6" />
+          <input type="number" id="comp-r" step="0.1" value="6" />
           <label>投資年限 (年)</label>
-          <input type="number" id="compound-years" value="20" />
-          <button class="primary" onclick="calcCompound()">計算終值</button>
-          <div id="compound-result" class="result-box" style="margin-top:10px;">資產終值：- 元</div>
+          <input type="number" id="comp-y" value="20" />
+          <button class="primary" onclick="calcCompound()">計算總資產</button>
+          <div id="comp-result" class="result-box">資產總值：- 元</div>
         </div>
       </div>
     </div>
 
-    <!-- 5. 程式員與進位換算 -->
+    <!-- 5. 程式員進位轉換 -->
     <div id="page-programmer" class="page">
-      <div class="page-title">程式員與進位進階</div>
+      <div class="page-title">程式員進位轉換</div>
       <div class="card form-group">
-        <h3>進位制轉換</h3>
         <label>十進位 (DEC)</label>
-        <input type="number" id="prog-dec" value="255" oninput="convertProg('dec')" />
+        <input type="number" id="prog-dec" value="255" oninput="convertBase('dec')" />
         <label>十六進位 (HEX)</label>
-        <input type="text" id="prog-hex" value="FF" oninput="convertProg('hex')" />
+        <input type="text" id="prog-hex" value="FF" oninput="convertBase('hex')" />
         <label>二進位 (BIN)</label>
-        <input type="text" id="prog-bin" value="11111111" oninput="convertProg('bin')" />
+        <input type="text" id="prog-bin" value="11111111" oninput="convertBase('bin')" />
       </div>
     </div>
 
-    <!-- 6. 數據統計與數論 -->
+    <!-- 6. 數據數論驗證 -->
     <div id="page-stats" class="page">
-      <div class="page-title">數據統計與數論</div>
-      <div class="grid-2">
-        <div class="card form-group">
-          <h3>哥德巴赫猜想驗證器</h3>
-          <label>輸入大於 2 的偶數</label>
-          <input type="number" id="gb-num" value="100" />
-          <button class="primary" onclick="verifyGB()">驗證分解</button>
-          <div id="gb-result" class="result-box" style="margin-top:10px;">結果將顯示於此</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 7. 幾何與物理公式 -->
-    <div id="page-physics" class="page">
-      <div class="page-title">幾何與物理公式</div>
+      <div class="page-title">數據數論驗證</div>
       <div class="card form-group" style="max-width: 500px;">
-        <h3>圓形面積與周長計算</h3>
-        <label>半徑 (r)</label>
-        <input type="number" id="circle-r" value="5" oninput="calcCircle()" />
-        <div id="circle-result" class="result-box" style="margin-top:10px;">
-          面積：78.54 <br/> 周長：31.42
-        </div>
-      </div>
-    </div>
-
-    <!-- 8. 健康體脂與 TDEE -->
-    <div id="page-health" class="page">
-      <div class="page-title">健康體脂與 TDEE</div>
-      <div class="card form-group" style="max-width: 500px;">
-        <h3>BMI 計算器</h3>
-        <label>身高 (cm)</label>
-        <input type="number" id="bmi-h" value="170" />
-        <label>體重 (kg)</label>
-        <input type="number" id="bmi-w" value="65" />
-        <button class="primary" onclick="calcBMI()">計算 BMI</button>
-        <div id="bmi-result" class="result-box" style="margin-top:10px;">BMI：-</div>
-      </div>
-    </div>
-
-    <!-- 9. 日期天數與推算 -->
-    <div id="page-date" class="page">
-      <div class="page-title">日期天數與推算</div>
-      <div class="card form-group" style="max-width: 500px;">
-        <h3>兩日期間隔天數</h3>
-        <label>起始日期</label>
-        <input type="date" id="date-start" />
-        <label>結束日期</label>
-        <input type="date" id="date-end" />
-        <button class="primary" onclick="calcDateDiff()">計算天數</button>
-        <div id="date-result" class="result-box" style="margin-top:10px;">相差：- 天</div>
+        <h3>哥德巴赫猜想驗證器</h3>
+        <label>輸入大於 2 的偶數</label>
+        <input type="number" id="gb-num" value="100" />
+        <button class="primary" onclick="verifyGoldbach()">開始驗證</button>
+        <div id="gb-result" class="result-box">驗證結果：-</div>
       </div>
     </div>
 
   </main>
 
   <script>
-    // Navigation Router
-    function showPage(pageId) {
+    // Tab 切換控制
+    function switchTab(pageId, event) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(pageId).classList.add('active');
       event.target.classList.add('active');
     }
 
-    // 1. Calculator Engine
-    let calcExpr = "";
-    function calcInput(val) {
-      if(calcExpr === "0") calcExpr = "";
-      calcExpr += val;
-      document.getElementById("calc-display").innerText = calcExpr || "0";
+    // 計算機邏輯
+    let expr = "";
+    function pressCalc(v) {
+      if (expr === "0") expr = "";
+      expr += v;
+      document.getElementById("calc-display").innerText = expr || "0";
     }
-    function calcClear() { calcExpr = ""; document.getElementById("calc-display").innerText = "0"; }
-    function calcBack() { calcExpr = calcExpr.slice(0, -1); document.getElementById("calc-display").innerText = calcExpr || "0"; }
-    function calcEquals() {
+    function clearCalc() { expr = ""; document.getElementById("calc-display").innerText = "0"; }
+    function backspaceCalc() { expr = expr.slice(0, -1); document.getElementById("calc-display").innerText = expr || "0"; }
+    function evalCalc() {
       try {
-        let parsed = calcExpr.replace(/pi/g, 'Math.PI').replace(/e/g, 'Math.E')
-                             .replace(/sin\(/g, 'Math.sin(').replace(/cos\(/g, 'Math.cos(')
-                             .replace(/tan\(/g, 'Math.tan(').replace(/log\(/g, 'Math.log10(')
-                             .replace(/ln\(/g, 'Math.log(').replace(/sqrt\(/g, 'Math.sqrt(')
-                             .replace(/\^/g, '**');
+        let parsed = expr.replace(/pi/g, 'Math.PI').replace(/e/g, 'Math.E')
+                         .replace(/sin\(/g, 'Math.sin(').replace(/cos\(/g, 'Math.cos(')
+                         .replace(/tan\(/g, 'Math.tan(').replace(/log\(/g, 'Math.log10(')
+                         .replace(/ln\(/g, 'Math.log(').replace(/sqrt\(/g, 'Math.sqrt(')
+                         .replace(/\^/g, '**');
         let res = eval(parsed);
         document.getElementById("calc-display").innerText = res;
-        calcExpr = String(res);
-      } catch(e) {
+        expr = String(res);
+      } catch (e) {
         document.getElementById("calc-display").innerText = "Error";
       }
     }
 
-    // 2. Unit Converter
-    const unitData = {
-      length: { "公尺 (m)": 1, "公里 (km)": 1000, "公分 (cm)": 0.01, "毫米 (mm)": 0.001, "英吋 (in)": 0.0254 },
+    // 單位換算邏輯
+    const units = {
+      length: { "公尺 (m)": 1, "公里 (km)": 1000, "公分 (cm)": 0.01, "英吋 (in)": 0.0254 },
       weight: { "公斤 (kg)": 1, "公克 (g)": 0.001, "台斤": 0.6, "磅 (lb)": 0.453592 },
       area: { "平方公尺 (m²)": 1, "公頃": 10000, "坪": 3.30579 }
     };
-    function initUnits() {
+    function updateUnitOptions() {
       const cat = document.getElementById("unit-cat").value;
-      const t1 = document.getElementById("unit-type1");
-      const t2 = document.getElementById("unit-type2");
-      t1.innerHTML = ""; t2.innerHTML = "";
-      if(unitData[cat]) {
-        Object.keys(unitData[cat]).forEach(u => {
-          t1.add(new Option(u, u));
-          t2.add(new Option(u, u));
-        });
-      }
-      convertUnit();
+      const u1 = document.getElementById("unit-u1");
+      const u2 = document.getElementById("unit-u2");
+      u1.innerHTML = ""; u2.innerHTML = "";
+      Object.keys(units[cat]).forEach(key => {
+        u1.add(new Option(key, key));
+        u2.add(new Option(key, key));
+      });
+      execUnitConvert();
     }
-    function convertUnit() {
+    function execUnitConvert() {
       const cat = document.getElementById("unit-cat").value;
-      const v1 = parseFloat(document.getElementById("unit-val1").value) || 0;
-      const u1 = document.getElementById("unit-type1").value;
-      const u2 = document.getElementById("unit-type2").value;
-      if(unitData[cat]) {
-        let base = v1 * unitData[cat][u1];
-        document.getElementById("unit-val2").value = (base / unitData[cat][u2]).toFixed(4);
+      const val = parseFloat(document.getElementById("unit-v1").value) || 0;
+      const k1 = document.getElementById("unit-u1").value;
+      const k2 = document.getElementById("unit-u2").value;
+      if (units[cat] && units[cat][k1] && units[cat][k2]) {
+        let base = val * units[cat][k1];
+        document.getElementById("unit-v2").value = (base / units[cat][k2]).toFixed(4);
       }
     }
-    initUnits();
+    updateUnitOptions();
 
-    // 3. Graphing
-    function drawGraph() {
+    // 2D 繪圖邏輯
+    function renderGraph() {
       const canvas = document.getElementById("graph-canvas");
       const ctx = canvas.getContext("2d");
-      const expr = document.getElementById("graph-expr").value;
+      const formula = document.getElementById("graph-expr").value;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Draw Axes
+      // 繪製座標軸
       ctx.strokeStyle = "#334155";
       ctx.beginPath();
-      ctx.moveTo(0, 175); ctx.lineTo(600, 175);
-      ctx.moveTo(300, 0); ctx.lineTo(300, 350);
+      ctx.moveTo(0, 160); ctx.lineTo(600, 160);
+      ctx.moveTo(300, 0); ctx.lineTo(300, 320);
       ctx.stroke();
 
-      // Plot Function
+      // 繪製曲線
       ctx.strokeStyle = "#3b82f6";
       ctx.lineWidth = 2;
       ctx.beginPath();
       let started = false;
       for (let px = 0; px < 600; px++) {
-        let x = (px - 300) / 30; // Scale
+        let x = (px - 300) / 30;
         try {
-          let y = eval(expr);
-          let py = 175 - (y * 30);
+          let y = eval(formula);
+          let py = 160 - (y * 30);
           if (!started) { ctx.moveTo(px, py); started = true; }
           else { ctx.lineTo(px, py); }
-        } catch(e) {}
+        } catch (e) {}
       }
       ctx.stroke();
     }
-    drawGraph();
+    renderGraph();
 
-    // 4. Finance
+    // 理財計算邏輯
     function calcLoan() {
       let p = parseFloat(document.getElementById("loan-amount").value) * 10000;
       let r = parseFloat(document.getElementById("loan-rate").value) / 100 / 12;
       let n = parseFloat(document.getElementById("loan-years").value) * 12;
-      let monthly = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-      document.getElementById("loan-result").innerText = `每月還款：${Math.round(monthly)} 元`;
+      let m = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+      document.getElementById("loan-result").innerText = `每月還款：${Math.round(m)} 元`;
     }
     function calcCompound() {
-      let m = parseFloat(document.getElementById("compound-monthly").value);
-      let r = parseFloat(document.getElementById("compound-rate").value) / 100 / 12;
-      let n = parseFloat(document.getElementById("compound-years").value) * 12;
+      let m = parseFloat(document.getElementById("comp-m").value);
+      let r = parseFloat(document.getElementById("comp-r").value) / 100 / 12;
+      let n = parseFloat(document.getElementById("comp-y").value) * 12;
       let fv = m * ((Math.pow(1 + r, n) - 1) / r);
-      document.getElementById("compound-result").innerText = `資產終值：${Math.round(fv)} 元`;
+      document.getElementById("comp-result").innerText = `資產總值：${Math.round(fv)} 元`;
     }
 
-    // 5. Programmer
-    function convertProg(src) {
-      let decInput = document.getElementById("prog-dec");
-      let hexInput = document.getElementById("prog-hex");
-      let binInput = document.getElementById("prog-bin");
-      
+    // 進位轉換邏輯
+    function convertBase(src) {
+      let dec = document.getElementById("prog-dec");
+      let hex = document.getElementById("prog-hex");
+      let bin = document.getElementById("prog-bin");
       let val = 0;
-      if (src === 'dec') val = parseInt(decInput.value, 10);
-      else if (src === 'hex') val = parseInt(hexInput.value, 16);
-      else if (src === 'bin') val = parseInt(binInput.value, 2);
+      if (src === 'dec') val = parseInt(dec.value, 10);
+      else if (src === 'hex') val = parseInt(hex.value, 16);
+      else if (src === 'bin') val = parseInt(bin.value, 2);
 
-      if(!isNaN(val)) {
-        if(src !== 'dec') decInput.value = val;
-        if(src !== 'hex') hexInput.value = val.toString(16).toUpperCase();
-        if(src !== 'bin') binInput.value = val.toString(2);
+      if (!isNaN(val)) {
+        if (src !== 'dec') dec.value = val;
+        if (src !== 'hex') hex.value = val.toString(16).toUpperCase();
+        if (src !== 'bin') bin.value = val.toString(2);
       }
     }
 
-    // 6. Goldbach
-    function isPrime(n) {
-      if(n <= 1) return false;
-      for(let i=2; i*i<=n; i++) if(n % i === 0) return false;
+    // 數論驗證邏輯
+    function checkPrime(n) {
+      if (n <= 1) return false;
+      for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
       return true;
     }
-    function verifyGB() {
+    function verifyGoldbach() {
       let num = parseInt(document.getElementById("gb-num").value);
-      if(num <= 2 || num % 2 !== 0) {
+      if (num <= 2 || num % 2 !== 0) {
         document.getElementById("gb-result").innerText = "請輸入大於 2 的偶數";
         return;
       }
-      for(let i=2; i<=num/2; i++) {
-        if(isPrime(i) && isPrime(num - i)) {
+      for (let i = 2; i <= num / 2; i++) {
+        if (checkPrime(i) && checkPrime(num - i)) {
           document.getElementById("gb-result").innerText = `驗證成功：${num} = ${i} + ${num - i}`;
           return;
         }
       }
-    }
-
-    // 7. Circle
-    function calcCircle() {
-      let r = parseFloat(document.getElementById("circle-r").value) || 0;
-      let area = (Math.PI * r * r).toFixed(2);
-      let len = (2 * Math.PI * r).toFixed(2);
-      document.getElementById("circle-result").innerHTML = `面積：${area} <br/> 周長：${len}`;
-    }
-
-    // 8. BMI
-    function calcBMI() {
-      let h = parseFloat(document.getElementById("bmi-h").value) / 100;
-      let w = parseFloat(document.getElementById("bmi-w").value);
-      let bmi = (w / (h * h)).toFixed(1);
-      document.getElementById("bmi-result").innerText = `BMI：${bmi}`;
-    }
-
-    // 9. Date
-    function calcDateDiff() {
-      let d1 = new Date(document.getElementById("date-start").value);
-      let d2 = new Date(document.getElementById("date-end").value);
-      let diff = Math.abs(d2 - d1) / (1000 * 60 * 60 * 24);
-      document.getElementById("date-result").innerText = `相差：${isNaN(diff)?'-':diff} 天`;
     }
   </script>
 </body>
