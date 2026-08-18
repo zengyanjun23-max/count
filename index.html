@@ -4,8 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>高級萬能計算機 Pro</title>
-  <!-- 引入 Chart.js 圖表庫 -->
+  <!-- Chart.js 圖表庫 -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Math.js 高級數學與符號運算庫 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
   <style>
     :root {
       --bg-main: #0f172a;
@@ -49,7 +51,7 @@
 
     .form-group { display: flex; flex-direction: column; gap: 8px; }
     .form-group label { font-size: 0.85rem; color: var(--text-muted); }
-    .result-box { background: #0f172a; padding: 15px; border-radius: 6px; border: 1px solid var(--border); font-family: monospace; font-size: 1.1rem; }
+    .result-box { background: #0f172a; padding: 15px; border-radius: 6px; border: 1px solid var(--border); font-family: monospace; font-size: 1.1rem; min-height: 50px; }
 
     /* Calculator */
     .calc-display { background: #000; color: #10b981; font-family: monospace; font-size: 2.2rem; padding: 15px; text-align: right; border-radius: 6px; min-height: 75px; word-wrap: break-word; margin-bottom: 15px; }
@@ -67,8 +69,12 @@
   <aside id="sidebar">
     <div class="logo">萬能計算機 Pro</div>
     <nav>
+      <div class="nav-category">高等數學運算</div>
+      <button class="nav-btn active" onclick="switchTab('page-calculus', event)">微積分計算器</button>
+      <button class="nav-btn" onclick="switchTab('page-equation', event)">方程式求解器</button>
+
       <div class="nav-category">數據與視覺化圖表</div>
-      <button class="nav-btn active" onclick="switchTab('page-ai-chart', event)">貼圖/提示字生成圖表</button>
+      <button class="nav-btn" onclick="switchTab('page-ai-chart', event)">貼圖/提示字生成圖表</button>
       <button class="nav-btn" onclick="switchTab('page-chart', event)">統計圖表生成器</button>
 
       <div class="nav-category">核心運算</div>
@@ -86,8 +92,78 @@
   <!-- 主工作區 -->
   <main id="main-content">
 
-    <!-- 1. 新增：貼圖與提示字生成圖表 -->
-    <div id="page-ai-chart" class="page active">
+    <!-- 1. 新增：微積分計算器 -->
+    <div id="page-calculus" class="page active">
+      <div class="page-title">微積分計算器</div>
+      <div class="grid-2">
+        <div class="card form-group">
+          <h3>微分 (Symbolic Derivative)</h3>
+          <label>輸入函數 $f(x)$ (例如：x^3 + 2*x^2 - 5*x + 3)</label>
+          <input type="text" id="diff-expr" value="x^3 + 2*x^2 - 5*x + 3" />
+          <button class="primary" onclick="calcDerivative()">計算一階導函數 $f'(x)$</button>
+          <div id="diff-result" class="result-box">導函數：-</div>
+        </div>
+
+        <div class="card form-group">
+          <h3>定積分 (Definite Integral)</h3>
+          <label>輸入函數 $f(x)$ (例如：x^2 + sin(x))</label>
+          <input type="text" id="integ-expr" value="x^2" />
+          <div style="display: flex; gap: 10px;">
+            <div style="flex:1;">
+              <label>積分下限 (a)</label>
+              <input type="number" id="integ-a" value="0" />
+            </div>
+            <div style="flex:1;">
+              <label>積分上限 (b)</label>
+              <input type="number" id="integ-b" value="3" />
+            </div>
+          </div>
+          <button class="primary" onclick="calcIntegral()">計算定積分 $\int_a^b f(x) dx$</button>
+          <div id="integ-result" class="result-box">積分數值：-</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 新增：方程式求解器 -->
+    <div id="page-equation" class="page">
+      <div class="page-title">方程式求解器</div>
+      <div class="grid-2">
+        <!-- 一元二次方程式 -->
+        <div class="card form-group">
+          <h3>一元二次方程式求解 ($ax^2 + bx + c = 0$)</h3>
+          <label>係數 a</label>
+          <input type="number" id="eq-a" value="1" />
+          <label>係數 b</label>
+          <input type="number" id="eq-b" value="-5" />
+          <label>係數 c</label>
+          <input type="number" id="eq-c" value="6" />
+          <button class="primary" onclick="solveQuadratic()">求解 $x$</button>
+          <div id="quad-result" class="result-box">解：-</div>
+        </div>
+
+        <!-- 二元一次聯立方程式 -->
+        <div class="card form-group">
+          <h3>二元一次聯立方程式求解</h3>
+          <p style="font-size:0.85rem; color:var(--text-muted);">
+            $a_1 x + b_1 y = c_1$<br>
+            $a_2 x + b_2 y = c_2$
+          </p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
+            <input type="number" id="sys-a1" placeholder="a1" value="2" />
+            <input type="number" id="sys-b1" placeholder="b1" value="1" />
+            <input type="number" id="sys-c1" placeholder="c1" value="5" />
+            <input type="number" id="sys-a2" placeholder="a2" value="1" />
+            <input type="number" id="sys-b2" placeholder="b2" value="-1" />
+            <input type="number" id="sys-c2" placeholder="c2" value="1" />
+          </div>
+          <button class="primary" onclick="solveSystem()">求解 $(x, y)$</button>
+          <div id="sys-result" class="result-box">解：-</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 貼圖與提示字生成圖表 -->
+    <div id="page-ai-chart" class="page">
       <div class="page-title">貼上圖片 / 提示字生成圖表</div>
       <div class="grid-2">
         <div class="card form-group">
@@ -121,7 +197,7 @@
       </div>
     </div>
 
-    <!-- 2. 新增：數據統計圖表生成器 -->
+    <!-- 4. 數據統計圖表生成器 -->
     <div id="page-chart" class="page">
       <div class="page-title">統計圖表生成器</div>
       <div class="grid-2">
@@ -154,7 +230,7 @@
       </div>
     </div>
 
-    <!-- 3. 工程計算機 -->
+    <!-- 5. 工程計算機 -->
     <div id="page-calc" class="page">
       <div class="page-title">工程與標準計算機</div>
       <div class="card" style="max-width: 550px; margin: 0 auto; width: 100%;">
@@ -199,7 +275,7 @@
       </div>
     </div>
 
-    <!-- 4. 全能單位換算器 -->
+    <!-- 6. 全能單位換算器 -->
     <div id="page-converter" class="page">
       <div class="page-title">全能單位換算器</div>
       <div class="card grid-2">
@@ -225,7 +301,7 @@
       </div>
     </div>
 
-    <!-- 5. 2D 函數繪圖儀 -->
+    <!-- 7. 2D 函數繪圖儀 -->
     <div id="page-graph" class="page">
       <div class="page-title">2D 函數繪圖儀</div>
       <div class="card grid-2" style="align-items: center;">
@@ -240,7 +316,7 @@
       </div>
     </div>
 
-    <!-- 6. 理財與複利試算 -->
+    <!-- 8. 理財與複利試算 -->
     <div id="page-finance" class="page">
       <div class="page-title">理財與複利試算</div>
       <div class="grid-2">
@@ -270,7 +346,7 @@
       </div>
     </div>
 
-    <!-- 7. 程式員進位轉換 -->
+    <!-- 9. 程式員進位轉換 -->
     <div id="page-programmer" class="page">
       <div class="page-title">程式員進位轉換</div>
       <div class="card form-group">
@@ -283,7 +359,7 @@
       </div>
     </div>
 
-    <!-- 8. 數據數論驗證 -->
+    <!-- 10. 數據數論驗證 -->
     <div id="page-stats" class="page">
       <div class="page-title">數據數論驗證</div>
       <div class="card form-group" style="max-width: 500px;">
@@ -298,7 +374,7 @@
   </main>
 
   <script>
-    // 頁面 Tab 切換控制
+    // Tab 切換
     function switchTab(pageId, event) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -306,7 +382,85 @@
       event.target.classList.add('active');
     }
 
-    // 1. AI 提示字與貼圖解析繪圖
+    // --- 微積分運算 ---
+    function calcDerivative() {
+      try {
+        const expr = document.getElementById('diff-expr').value;
+        const result = math.derivative(expr, 'x').toString();
+        document.getElementById('diff-result').innerText = `f'(x) = ${result}`;
+      } catch (err) {
+        document.getElementById('diff-result').innerText = '計算錯誤：請確認公式格式';
+      }
+    }
+
+    function calcIntegral() {
+      try {
+        const expr = document.getElementById('integ-expr').value;
+        const a = parseFloat(document.getElementById('integ-a').value);
+        const b = parseFloat(document.getElementById('integ-b').value);
+        
+        // 辛普森法 (Simpson's rule) 進行數值積分
+        const f = math.compile(expr);
+        const n = 1000;
+        const h = (b - a) / n;
+        let sum = f.evaluate({x: a}) + f.evaluate({x: b});
+
+        for (let i = 1; i < n; i++) {
+          let x = a + i * h;
+          sum += f.evaluate({x: x}) * (i % 2 === 0 ? 2 : 4);
+        }
+        const area = (h / 3) * sum;
+        document.getElementById('integ-result').innerText = `定積分結果 ≈ ${area.toFixed(6)}`;
+      } catch (err) {
+        document.getElementById('integ-result').innerText = '計算錯誤：請確認輸入數據';
+      }
+    }
+
+    // --- 方程式求解器 ---
+    function solveQuadratic() {
+      const a = parseFloat(document.getElementById('eq-a').value);
+      const b = parseFloat(document.getElementById('eq-b').value);
+      const c = parseFloat(document.getElementById('eq-c').value);
+
+      if (a === 0) {
+        document.getElementById('quad-result').innerText = 'a 不能為 0';
+        return;
+      }
+
+      const disc = b * b - 4 * a * c;
+      if (disc > 0) {
+        const x1 = (-b + Math.sqrt(disc)) / (2 * a);
+        const x2 = (-b - Math.sqrt(disc)) / (2 * a);
+        document.getElementById('quad-result').innerText = `兩實根：x1 = ${x1.toFixed(4)}, x2 = ${x2.toFixed(4)}`;
+      } else if (disc === 0) {
+        const x = -b / (2 * a);
+        document.getElementById('quad-result').innerText = `重根：x = ${x.toFixed(4)}`;
+      } else {
+        const real = (-b / (2 * a)).toFixed(4);
+        const imag = (Math.sqrt(-disc) / (2 * a)).toFixed(4);
+        document.getElementById('quad-result').innerText = `複數根：x = ${real} ± ${imag}i`;
+      }
+    }
+
+    function solveSystem() {
+      const a1 = parseFloat(document.getElementById('sys-a1').value);
+      const b1 = parseFloat(document.getElementById('sys-b1').value);
+      const c1 = parseFloat(document.getElementById('sys-c1').value);
+      const a2 = parseFloat(document.getElementById('sys-a2').value);
+      const b2 = parseFloat(document.getElementById('sys-b2').value);
+      const c2 = parseFloat(document.getElementById('sys-c2').value);
+
+      const det = a1 * b2 - a2 * b1;
+      if (det === 0) {
+        document.getElementById('sys-result').innerText = '無解或有無限多組解 (行列式 = 0)';
+      } else {
+        const x = (c1 * b2 - c2 * b1) / det;
+        const y = (a1 * c2 - a2 * c1) / det;
+        document.getElementById('sys-result').innerText = `解為：x = ${x.toFixed(4)}, y = ${y.toFixed(4)}`;
+      }
+    }
+
+    // --- AI 提示字與貼圖繪圖 ---
     let aiChartInstance = null;
     window.addEventListener('paste', (e) => {
       const items = e.clipboardData.items;
@@ -386,7 +540,7 @@
       status.innerText = `成功生成！共有 ${data.length} 筆數據。`;
     }
 
-    // 2. 自訂圖表繪製
+    // --- 自訂圖表繪製 ---
     let customChartInstance = null;
     function generateCustomChart() {
       const ctx = document.getElementById('customCanvas').getContext('2d');
@@ -421,7 +575,7 @@
       });
     }
 
-    // 3. 計算機邏輯
+    // --- 計算機邏輯 ---
     let expr = "";
     function pressCalc(v) {
       if (expr === "0") expr = "";
@@ -445,7 +599,7 @@
       }
     }
 
-    // 4. 單位換算
+    // --- 單位換算 ---
     const units = {
       length: { "公尺 (m)": 1, "公里 (km)": 1000, "公分 (cm)": 0.01, "英吋 (in)": 0.0254 },
       weight: { "公斤 (kg)": 1, "公克 (g)": 0.001, "台斤": 0.6, "磅 (lb)": 0.453592 },
@@ -474,7 +628,7 @@
     }
     updateUnitOptions();
 
-    // 5. 2D 繪圖
+    // --- 2D 繪圖 ---
     function renderGraph() {
       const canvas = document.getElementById("graph-canvas");
       const ctx = canvas.getContext("2d");
@@ -502,7 +656,7 @@
     }
     renderGraph();
 
-    // 6. 理財試算
+    // --- 理財試算 ---
     function calcLoan() {
       let p = parseFloat(document.getElementById("loan-amount").value) * 10000;
       let r = parseFloat(document.getElementById("loan-rate").value) / 100 / 12;
@@ -518,7 +672,7 @@
       document.getElementById("comp-result").innerText = `資產總值：${Math.round(fv)} 元`;
     }
 
-    // 7. 進位轉換
+    // --- 進位轉換 ---
     function convertBase(src) {
       let dec = document.getElementById("prog-dec");
       let hex = document.getElementById("prog-hex");
@@ -535,7 +689,7 @@
       }
     }
 
-    // 8. 哥德巴赫驗證
+    // --- 哥德巴赫驗證 ---
     function checkPrime(n) {
       if (n <= 1) return false;
       for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
@@ -557,6 +711,8 @@
 
     window.onload = () => {
       generateCustomChart();
+      calcDerivative();
+      calcIntegral();
     };
   </script>
 </body>
