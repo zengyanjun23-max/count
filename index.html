@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>萬能計算機與圖表繪製 Pro</title>
-  <!-- 引入 Chart.js 圖表庫 -->
+  <title>提示字與圖片分析圖表生成器 Pro</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
@@ -25,14 +24,11 @@
     #sidebar { width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
     #sidebar .logo { padding: 20px; font-size: 1.2rem; font-weight: bold; color: var(--accent); border-bottom: 1px solid var(--border); }
     #sidebar nav { flex: 1; overflow-y: auto; padding: 10px; }
-    .nav-category { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin: 15px 10px 5px; font-weight: bold; }
-    .nav-btn { width: 100%; text-align: left; padding: 10px 12px; background: none; border: none; color: var(--text-muted); border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
-    .nav-btn:hover { background: var(--panel-bg); color: var(--text-main); }
+    .nav-btn { width: 100%; text-align: left; padding: 10px 12px; background: none; border: none; color: var(--text-muted); border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; margin-bottom: 5px; }
     .nav-btn.active { background: var(--accent); color: #fff; font-weight: bold; }
 
-    #main-content { flex: 1; overflow-y: auto; padding: 30px; position: relative; }
-    .page { display: none; height: 100%; flex-direction: column; gap: 20px; }
-    .page.active { display: flex; }
+    #main-content { flex: 1; overflow-y: auto; padding: 30px; }
+    .page { display: flex; height: 100%; flex-direction: column; gap: 20px; }
     .page-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
 
     .card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
@@ -40,115 +36,150 @@
     input, select, button, textarea { background: var(--btn-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px 14px; border-radius: 6px; font-size: 1rem; outline: none; }
     input:focus, select:focus, textarea:focus { border-color: var(--accent); }
     button { cursor: pointer; transition: 0.2s; }
-    button:hover { background: var(--btn-hover); }
     button.primary { background: var(--accent); border-color: var(--accent); }
     button.primary:hover { background: var(--accent-hover); }
 
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
     .form-group label { font-size: 0.85rem; color: var(--text-muted); }
-    .chart-container { position: relative; width: 100%; height: 350px; }
+    .chart-container { position: relative; width: 100%; height: 380px; }
+    
+    /* 圖片預覽樣式 */
+    .img-preview-box { border: 2px dashed var(--border); padding: 15px; border-radius: 6px; text-align: center; cursor: pointer; }
+    .img-preview-box img { max-width: 100%; max-height: 180px; border-radius: 6px; margin-top: 10px; display: none; }
   </style>
 </head>
 <body>
 
   <aside id="sidebar">
-    <div class="logo">萬能圖表計算機</div>
+    <div class="logo">AI 圖表助手</div>
     <nav>
-      <div class="nav-category">數據與視覺化</div>
-      <button class="nav-btn active" onclick="switchTab('page-chart', event)">統計圖表生成器</button>
-      <button class="nav-btn" onclick="switchTab('page-finance-chart', event)">房貸與複利趨勢圖</button>
+      <button class="nav-btn active">圖片與提示字圖表生成器</button>
     </nav>
   </aside>
 
   <main id="main-content">
-
-    <!-- 1. 自訂數據統計圖表 -->
-    <div id="page-chart" class="page active">
-      <div class="page-title">數據統計圖表生成器</div>
+    <div class="page">
+      <div class="page-title">貼上圖片 / 提示字生成圖表</div>
+      
       <div class="grid-2">
+        <!-- 左側：輸入與圖片上傳區 -->
         <div class="card form-group">
-          <h3>輸入數據</h3>
-          <label>圖表標題</label>
-          <input type="text" id="chart-title" value="每月收支統計" />
-          
-          <label>圖表類型</label>
-          <select id="chart-type" onchange="generateChart()">
-            <option value="bar">長條圖 (Bar)</option>
-            <option value="line">折線圖 (Line)</option>
-            <option value="pie">圓餅圖 (Pie)</option>
+          <h3>1. 上傳 / 貼上圖片</h3>
+          <div class="img-preview-box" id="drop-zone" onclick="document.getElementById('file-input').click()">
+            <p id="upload-text">點擊上傳圖片，或直接按 Ctrl+V 貼上截圖</p>
+            <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="handleImageUpload(this.files[0])">
+            <img id="preview-img" alt="圖片預覽" />
+          </div>
+
+          <h3>2. 輸入提示字 (Prompt)</h3>
+          <textarea id="prompt-input" rows="4" placeholder="例如：幫我畫出圖中的數據長條圖，或是輸入『蘋果 50, 香蕉 30, 橘子 40』"></textarea>
+
+          <h3>3. 選擇圖表類型</h3>
+          <select id="chart-type">
+            <option value="bar">長條圖 (Bar Chart)</option>
+            <option value="line">折線圖 (Line Chart)</option>
+            <option value="pie">圓餅圖 (Pie Chart)</option>
           </select>
 
-          <label>資料標籤 (用逗號分開)</label>
-          <input type="text" id="chart-labels" value="一月, 二月, 三月, 四月, 五月" />
-
-          <label>對應數值 (用逗號分開)</label>
-          <input type="text" id="chart-data" value="1200, 1900, 3000, 5000, 2400" />
-
-          <button class="primary" onclick="generateChart()">生成圖表</button>
+          <button class="primary" onclick="processPromptAndImage()">解析數據並生成圖表</button>
         </div>
 
+        <!-- 右側：圖表呈現區 -->
         <div class="card">
-          <h3>圖表預覽</h3>
+          <h3>生成圖表預覽</h3>
           <div class="chart-container">
-            <canvas id="customCanvas"></canvas>
+            <canvas id="mainChart"></canvas>
           </div>
+          <div id="status-msg" style="margin-top: 15px; font-size: 0.9rem; color: var(--text-muted);"></div>
         </div>
       </div>
     </div>
-
-    <!-- 2. 理財趨勢動態圖表 -->
-    <div id="page-finance-chart" class="page">
-      <div class="page-title">定期定額複利成長趨勢圖</div>
-      <div class="grid-2">
-        <div class="card form-group">
-          <label>每月投資金額 (元)</label>
-          <input type="number" id="invest-m" value="10000" />
-          <label>預期年報酬率 (%)</label>
-          <input type="number" id="invest-r" value="7" />
-          <label>投資年限 (年)</label>
-          <input type="number" id="invest-y" value="15" />
-          <button class="primary" onclick="renderFinanceChart()">計算並繪製資產曲線</button>
-        </div>
-
-        <div class="card">
-          <h3>資產累積歷程</h3>
-          <div class="chart-container">
-            <canvas id="financeCanvas"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </main>
 
   <script>
-    function switchTab(pageId, event) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(pageId).classList.add('active');
-      event.target.classList.add('active');
+    let currentChart = null;
+
+    // 處理剪貼簿圖片 (Ctrl+V)
+    window.addEventListener('paste', (e) => {
+      const items = e.clipboardData.items;
+      for (let item of items) {
+        if (item.type.indexOf('image') !== -1) {
+          const file = item.getAsFile();
+          handleImageUpload(file);
+          break;
+        }
+      }
+    });
+
+    // 顯示圖片預覽
+    function handleImageUpload(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.getElementById('preview-img');
+        img.src = e.target.result;
+        img.style.display = 'block';
+        document.getElementById('upload-text').innerText = `已成功載入圖片：${file.name || '剪貼簿圖片'}`;
+      };
+      reader.readAsDataURL(file);
     }
 
-    // 自訂圖表繪製邏輯
-    let customChartInstance = null;
-    function generateChart() {
-      const ctx = document.getElementById('customCanvas').getContext('2d');
-      const title = document.getElementById('chart-title').value;
+    // 解析提示字與生成圖表
+    function processPromptAndImage() {
+      const prompt = document.getElementById('prompt-input').value.trim();
       const type = document.getElementById('chart-type').value;
-      const labels = document.getElementById('chart-labels').value.split(',').map(s => s.trim());
-      const data = document.getElementById('chart-data').value.split(',').map(s => parseFloat(s.trim()) || 0);
+      const status = document.getElementById('status-msg');
 
-      if (customChartInstance) customChartInstance.destroy();
+      if (!prompt) {
+        alert('請先輸入提示字描述數據，或貼上帶有數值的文字！');
+        return;
+      }
 
-      customChartInstance = new Chart(ctx, {
+      status.innerText = '正在解析提示字數據中...';
+
+      // 正則表達式自動解析數值對 (例如：蘋果 50, 香蕉 30 或 A: 100)
+      const matches = [...prompt.matchAll(/([\u4e00-\u9fa5\w]+)[\s:：,，=]+(\d+\.?\d*)/g)];
+
+      let labels = [];
+      let data = [];
+
+      if (matches.length > 0) {
+        matches.forEach(m => {
+          labels.push(m[1]);
+          data.push(parseFloat(m[2]));
+        });
+      } else {
+        // 備用解析邏輯：若只有數字，自動生成項目 1, 2, 3
+        const numbers = prompt.match(/\d+\.?\d*/g);
+        if (numbers) {
+          data = numbers.map(n => parseFloat(n));
+          labels = data.map((_, i) => `項目 ${i + 1}`);
+        }
+      }
+
+      if (data.length === 0) {
+        status.innerText = '未在提示字中偵測到清晰的數據，請輸入包含「名稱 數值」的內容（如：一月 100, 二月 200）。';
+        return;
+      }
+
+      renderChart(labels, data, type);
+      status.innerText = `成功繪製！共包含 ${data.length} 筆數據點。`;
+    }
+
+    // 繪製 Chart.js
+    function renderChart(labels, data, type) {
+      const ctx = document.getElementById('mainChart').getContext('2d');
+      if (currentChart) currentChart.destroy();
+
+      currentChart = new Chart(ctx, {
         type: type,
         data: {
           labels: labels,
           datasets: [{
-            label: title,
+            label: '提示字數據統計',
             data: data,
             backgroundColor: [
-              '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'
+              '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
             ],
             borderColor: '#1e293b',
             borderWidth: 1
@@ -167,70 +198,6 @@
         }
       });
     }
-
-    // 複利趨勢圖繪製邏輯
-    let financeChartInstance = null;
-    function renderFinanceChart() {
-      const ctx = document.getElementById('financeCanvas').getContext('2d');
-      const m = parseFloat(document.getElementById('invest-m').value) || 0;
-      const rate = (parseFloat(document.getElementById('invest-r').value) || 0) / 100 / 12;
-      const years = parseInt(document.getElementById('invest-y').value) || 0;
-
-      let labels = [];
-      let principalData = []; // 本金
-      let totalData = [];     // 本利和
-
-      let currentTotal = 0;
-      for (let y = 1; y <= years; y++) {
-        labels.push(`第 ${y} 年`);
-        for (let month = 0; month < 12; month++) {
-          currentTotal = (currentTotal + m) * (1 + rate);
-        }
-        principalData.push(m * 12 * y);
-        totalData.push(Math.round(currentTotal));
-      }
-
-      if (financeChartInstance) financeChartInstance.destroy();
-
-      financeChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: '預估資產總額 (本利和)',
-              data: totalData,
-              borderColor: '#10b981',
-              backgroundColor: 'rgba(16, 185, 129, 0.2)',
-              fill: true
-            },
-            {
-              label: '投入總本金',
-              data: principalData,
-              borderColor: '#3b82f6',
-              borderDash: [5, 5]
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { labels: { color: '#f8fafc' } }
-          },
-          scales: {
-            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
-            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
-          }
-        }
-      });
-    }
-
-    // 頁面加載時自動生成預設圖表
-    window.onload = () => {
-      generateChart();
-      renderFinanceChart();
-    };
   </script>
 </body>
 </html>
