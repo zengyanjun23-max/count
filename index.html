@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>高級萬能計算機 Universal Calculator Pro</title>
+  <title>萬能計算機與圖表繪製 Pro</title>
+  <!-- 引入 Chart.js 圖表庫 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --bg-main: #0f172a;
@@ -20,7 +22,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { display: flex; height: 100vh; background: var(--bg-main); color: var(--text-main); overflow: hidden; }
 
-    /* Sidebar Layout */
     #sidebar { width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
     #sidebar .logo { padding: 20px; font-size: 1.2rem; font-weight: bold; color: var(--accent); border-bottom: 1px solid var(--border); }
     #sidebar nav { flex: 1; overflow-y: auto; padding: 10px; }
@@ -29,17 +30,15 @@
     .nav-btn:hover { background: var(--panel-bg); color: var(--text-main); }
     .nav-btn.active { background: var(--accent); color: #fff; font-weight: bold; }
 
-    /* Content Area */
     #main-content { flex: 1; overflow-y: auto; padding: 30px; position: relative; }
     .page { display: none; height: 100%; flex-direction: column; gap: 20px; }
     .page.active { display: flex; }
     .page-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
 
-    /* Components & UI */
     .card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
     .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-    input, select, button { background: var(--btn-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px 14px; border-radius: 6px; font-size: 1rem; outline: none; }
-    input:focus, select:focus { border-color: var(--accent); }
+    input, select, button, textarea { background: var(--btn-bg); border: 1px solid var(--border); color: var(--text-main); padding: 10px 14px; border-radius: 6px; font-size: 1rem; outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
     button { cursor: pointer; transition: 0.2s; }
     button:hover { background: var(--btn-hover); }
     button.primary { background: var(--accent); border-color: var(--accent); }
@@ -47,179 +46,82 @@
 
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group label { font-size: 0.85rem; color: var(--text-muted); }
-    .result-box { background: #0f172a; padding: 15px; border-radius: 6px; border: 1px solid var(--border); font-family: monospace; font-size: 1.1rem; }
-
-    /* Calculator Specifics */
-    .calc-display { background: #000; color: #10b981; font-family: monospace; font-size: 2.2rem; padding: 15px; text-align: right; border-radius: 6px; min-height: 75px; word-wrap: break-word; margin-bottom: 15px; }
-    .calc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .chart-container { position: relative; width: 100%; height: 350px; }
   </style>
 </head>
 <body>
 
-  <!-- 側邊欄選單 -->
   <aside id="sidebar">
-    <div class="logo">萬能計算機 Pro</div>
+    <div class="logo">萬能圖表計算機</div>
     <nav>
-      <div class="nav-category">核心運算</div>
-      <button class="nav-btn active" onclick="switchTab('page-calc', event)">工程與標準計算機</button>
-      <button class="nav-btn" onclick="switchTab('page-converter', event)">全能單位換算器</button>
-      <button class="nav-btn" onclick="switchTab('page-graph', event)">2D 函數繪圖儀</button>
-
-      <div class="nav-category">專業工具</div>
-      <button class="nav-btn" onclick="switchTab('page-finance', event)">理財與複利試算</button>
-      <button class="nav-btn" onclick="switchTab('page-programmer', event)">程式員進位轉換</button>
-      <button class="nav-btn" onclick="switchTab('page-stats', event)">數據數論驗證</button>
+      <div class="nav-category">數據與視覺化</div>
+      <button class="nav-btn active" onclick="switchTab('page-chart', event)">統計圖表生成器</button>
+      <button class="nav-btn" onclick="switchTab('page-finance-chart', event)">房貸與複利趨勢圖</button>
     </nav>
   </aside>
 
-  <!-- 主要工作區 -->
   <main id="main-content">
 
-    <!-- 1. 工程與標準計算機 -->
-    <div id="page-calc" class="page active">
-      <div class="page-title">工程與標準計算機</div>
-      <div class="card" style="max-width: 550px; margin: 0 auto; width: 100%;">
-        <div id="calc-display" class="calc-display">0</div>
-        <div class="calc-grid">
-          <button onclick="pressCalc('sin(')">sin</button>
-          <button onclick="pressCalc('cos(')">cos</button>
-          <button onclick="pressCalc('tan(')">tan</button>
-          <button onclick="clearCalc()">C</button>
-          <button onclick="backspaceCalc()">DEL</button>
-
-          <button onclick="pressCalc('pi')">π</button>
-          <button onclick="pressCalc('e')">e</button>
-          <button onclick="pressCalc('log(')">log</button>
-          <button onclick="pressCalc('ln(')">ln</button>
-          <button onclick="pressCalc('/')">÷</button>
-
-          <button onclick="pressCalc('^')">x^y</button>
-          <button onclick="pressCalc('sqrt(')">√</button>
-          <button onclick="pressCalc('(')">(</button>
-          <button onclick="pressCalc(')')">)</button>
-          <button onclick="pressCalc('*')">×</button>
-
-          <button onclick="pressCalc('7')">7</button>
-          <button onclick="pressCalc('8')">8</button>
-          <button onclick="pressCalc('9')">9</button>
-          <button onclick="pressCalc('-')">-</button>
-          <button onclick="pressCalc('%')">%</button>
-
-          <button onclick="pressCalc('4')">4</button>
-          <button onclick="pressCalc('5')">5</button>
-          <button onclick="pressCalc('6')">6</button>
-          <button onclick="pressCalc('+')">+</button>
-          <button class="primary" style="grid-row: span 2;" onclick="evalCalc()">=</button>
-
-          <button onclick="pressCalc('1')">1</button>
-          <button onclick="pressCalc('2')">2</button>
-          <button onclick="pressCalc('3')">3</button>
-          <button onclick="pressCalc('0')" style="grid-column: span 2;">0</button>
-          <button onclick="pressCalc('.')">.</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2. 全能單位換算器 -->
-    <div id="page-converter" class="page">
-      <div class="page-title">全能單位換算器</div>
-      <div class="card grid-2">
-        <div class="form-group">
-          <label>換算類別</label>
-          <select id="unit-cat" onchange="updateUnitOptions()">
-            <option value="length">長度</option>
-            <option value="weight">重量</option>
-            <option value="area">面積</option>
-          </select>
-        </div>
-        <div></div>
-        <div class="form-group">
-          <label>數值 (輸入)</label>
-          <input type="number" id="unit-v1" value="1" oninput="execUnitConvert()" />
-          <select id="unit-u1" onchange="execUnitConvert()"></select>
-        </div>
-        <div class="form-group">
-          <label>轉換結果</label>
-          <input type="number" id="unit-v2" readonly />
-          <select id="unit-u2" onchange="execUnitConvert()"></select>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. 2D 函數繪圖儀 -->
-    <div id="page-graph" class="page">
-      <div class="page-title">2D 函數繪圖儀</div>
-      <div class="card grid-2" style="align-items: center;">
-        <div class="form-group">
-          <label>方程式 $f(x)$ (例如：Math.sin(x), x*x - 2)</label>
-          <input type="text" id="graph-expr" value="Math.sin(x)" />
-        </div>
-        <button class="primary" onclick="renderGraph()">繪製圖形</button>
-      </div>
-      <div class="card" style="flex: 1; min-height: 320px; display: flex; justify-content: center; align-items: center;">
-        <canvas id="graph-canvas" width="600" height="320" style="background:#000; border-radius:6px;"></canvas>
-      </div>
-    </div>
-
-    <!-- 4. 理財與複利試算 -->
-    <div id="page-finance" class="page">
-      <div class="page-title">理財與投資試算</div>
+    <!-- 1. 自訂數據統計圖表 -->
+    <div id="page-chart" class="page active">
+      <div class="page-title">數據統計圖表生成器</div>
       <div class="grid-2">
         <div class="card form-group">
-          <h3>房貸試算 (本息均攤)</h3>
-          <label>貸款總額 (萬元)</label>
-          <input type="number" id="loan-amount" value="1000" />
-          <label>年利率 (%)</label>
-          <input type="number" id="loan-rate" step="0.01" value="2.15" />
-          <label>貸款年限 (年)</label>
-          <input type="number" id="loan-years" value="30" />
-          <button class="primary" onclick="calcLoan()">計算每月還款</button>
-          <div id="loan-result" class="result-box">每月還款：- 元</div>
+          <h3>輸入數據</h3>
+          <label>圖表標題</label>
+          <input type="text" id="chart-title" value="每月收支統計" />
+          
+          <label>圖表類型</label>
+          <select id="chart-type" onchange="generateChart()">
+            <option value="bar">長條圖 (Bar)</option>
+            <option value="line">折線圖 (Line)</option>
+            <option value="pie">圓餅圖 (Pie)</option>
+          </select>
+
+          <label>資料標籤 (用逗號分開)</label>
+          <input type="text" id="chart-labels" value="一月, 二月, 三月, 四月, 五月" />
+
+          <label>對應數值 (用逗號分開)</label>
+          <input type="text" id="chart-data" value="1200, 1900, 3000, 5000, 2400" />
+
+          <button class="primary" onclick="generateChart()">生成圖表</button>
         </div>
 
+        <div class="card">
+          <h3>圖表預覽</h3>
+          <div class="chart-container">
+            <canvas id="customCanvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 理財趨勢動態圖表 -->
+    <div id="page-finance-chart" class="page">
+      <div class="page-title">定期定額複利成長趨勢圖</div>
+      <div class="grid-2">
         <div class="card form-group">
-          <h3>定期定額複利試算</h3>
           <label>每月投資金額 (元)</label>
-          <input type="number" id="comp-m" value="10000" />
-          <label>預期年化報酬率 (%)</label>
-          <input type="number" id="comp-r" step="0.1" value="6" />
+          <input type="number" id="invest-m" value="10000" />
+          <label>預期年報酬率 (%)</label>
+          <input type="number" id="invest-r" value="7" />
           <label>投資年限 (年)</label>
-          <input type="number" id="comp-y" value="20" />
-          <button class="primary" onclick="calcCompound()">計算總資產</button>
-          <div id="comp-result" class="result-box">資產總值：- 元</div>
+          <input type="number" id="invest-y" value="15" />
+          <button class="primary" onclick="renderFinanceChart()">計算並繪製資產曲線</button>
         </div>
-      </div>
-    </div>
 
-    <!-- 5. 程式員進位轉換 -->
-    <div id="page-programmer" class="page">
-      <div class="page-title">程式員進位轉換</div>
-      <div class="card form-group">
-        <label>十進位 (DEC)</label>
-        <input type="number" id="prog-dec" value="255" oninput="convertBase('dec')" />
-        <label>十六進位 (HEX)</label>
-        <input type="text" id="prog-hex" value="FF" oninput="convertBase('hex')" />
-        <label>二進位 (BIN)</label>
-        <input type="text" id="prog-bin" value="11111111" oninput="convertBase('bin')" />
-      </div>
-    </div>
-
-    <!-- 6. 數據數論驗證 -->
-    <div id="page-stats" class="page">
-      <div class="page-title">數據數論驗證</div>
-      <div class="card form-group" style="max-width: 500px;">
-        <h3>哥德巴赫猜想驗證器</h3>
-        <label>輸入大於 2 的偶數</label>
-        <input type="number" id="gb-num" value="100" />
-        <button class="primary" onclick="verifyGoldbach()">開始驗證</button>
-        <div id="gb-result" class="result-box">驗證結果：-</div>
+        <div class="card">
+          <h3>資產累積歷程</h3>
+          <div class="chart-container">
+            <canvas id="financeCanvas"></canvas>
+          </div>
+        </div>
       </div>
     </div>
 
   </main>
 
   <script>
-    // Tab 切換控制
     function switchTab(pageId, event) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -227,143 +129,108 @@
       event.target.classList.add('active');
     }
 
-    // 計算機邏輯
-    let expr = "";
-    function pressCalc(v) {
-      if (expr === "0") expr = "";
-      expr += v;
-      document.getElementById("calc-display").innerText = expr || "0";
-    }
-    function clearCalc() { expr = ""; document.getElementById("calc-display").innerText = "0"; }
-    function backspaceCalc() { expr = expr.slice(0, -1); document.getElementById("calc-display").innerText = expr || "0"; }
-    function evalCalc() {
-      try {
-        let parsed = expr.replace(/pi/g, 'Math.PI').replace(/e/g, 'Math.E')
-                         .replace(/sin\(/g, 'Math.sin(').replace(/cos\(/g, 'Math.cos(')
-                         .replace(/tan\(/g, 'Math.tan(').replace(/log\(/g, 'Math.log10(')
-                         .replace(/ln\(/g, 'Math.log(').replace(/sqrt\(/g, 'Math.sqrt(')
-                         .replace(/\^/g, '**');
-        let res = eval(parsed);
-        document.getElementById("calc-display").innerText = res;
-        expr = String(res);
-      } catch (e) {
-        document.getElementById("calc-display").innerText = "Error";
-      }
-    }
+    // 自訂圖表繪製邏輯
+    let customChartInstance = null;
+    function generateChart() {
+      const ctx = document.getElementById('customCanvas').getContext('2d');
+      const title = document.getElementById('chart-title').value;
+      const type = document.getElementById('chart-type').value;
+      const labels = document.getElementById('chart-labels').value.split(',').map(s => s.trim());
+      const data = document.getElementById('chart-data').value.split(',').map(s => parseFloat(s.trim()) || 0);
 
-    // 單位換算邏輯
-    const units = {
-      length: { "公尺 (m)": 1, "公里 (km)": 1000, "公分 (cm)": 0.01, "英吋 (in)": 0.0254 },
-      weight: { "公斤 (kg)": 1, "公克 (g)": 0.001, "台斤": 0.6, "磅 (lb)": 0.453592 },
-      area: { "平方公尺 (m²)": 1, "公頃": 10000, "坪": 3.30579 }
-    };
-    function updateUnitOptions() {
-      const cat = document.getElementById("unit-cat").value;
-      const u1 = document.getElementById("unit-u1");
-      const u2 = document.getElementById("unit-u2");
-      u1.innerHTML = ""; u2.innerHTML = "";
-      Object.keys(units[cat]).forEach(key => {
-        u1.add(new Option(key, key));
-        u2.add(new Option(key, key));
-      });
-      execUnitConvert();
-    }
-    function execUnitConvert() {
-      const cat = document.getElementById("unit-cat").value;
-      const val = parseFloat(document.getElementById("unit-v1").value) || 0;
-      const k1 = document.getElementById("unit-u1").value;
-      const k2 = document.getElementById("unit-u2").value;
-      if (units[cat] && units[cat][k1] && units[cat][k2]) {
-        let base = val * units[cat][k1];
-        document.getElementById("unit-v2").value = (base / units[cat][k2]).toFixed(4);
-      }
-    }
-    updateUnitOptions();
+      if (customChartInstance) customChartInstance.destroy();
 
-    // 2D 繪圖邏輯
-    function renderGraph() {
-      const canvas = document.getElementById("graph-canvas");
-      const ctx = canvas.getContext("2d");
-      const formula = document.getElementById("graph-expr").value;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // 繪製座標軸
-      ctx.strokeStyle = "#334155";
-      ctx.beginPath();
-      ctx.moveTo(0, 160); ctx.lineTo(600, 160);
-      ctx.moveTo(300, 0); ctx.lineTo(300, 320);
-      ctx.stroke();
-
-      // 繪製曲線
-      ctx.strokeStyle = "#3b82f6";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      let started = false;
-      for (let px = 0; px < 600; px++) {
-        let x = (px - 300) / 30;
-        try {
-          let y = eval(formula);
-          let py = 160 - (y * 30);
-          if (!started) { ctx.moveTo(px, py); started = true; }
-          else { ctx.lineTo(px, py); }
-        } catch (e) {}
-      }
-      ctx.stroke();
-    }
-    renderGraph();
-
-    // 理財計算邏輯
-    function calcLoan() {
-      let p = parseFloat(document.getElementById("loan-amount").value) * 10000;
-      let r = parseFloat(document.getElementById("loan-rate").value) / 100 / 12;
-      let n = parseFloat(document.getElementById("loan-years").value) * 12;
-      let m = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-      document.getElementById("loan-result").innerText = `每月還款：${Math.round(m)} 元`;
-    }
-    function calcCompound() {
-      let m = parseFloat(document.getElementById("comp-m").value);
-      let r = parseFloat(document.getElementById("comp-r").value) / 100 / 12;
-      let n = parseFloat(document.getElementById("comp-y").value) * 12;
-      let fv = m * ((Math.pow(1 + r, n) - 1) / r);
-      document.getElementById("comp-result").innerText = `資產總值：${Math.round(fv)} 元`;
-    }
-
-    // 進位轉換邏輯
-    function convertBase(src) {
-      let dec = document.getElementById("prog-dec");
-      let hex = document.getElementById("prog-hex");
-      let bin = document.getElementById("prog-bin");
-      let val = 0;
-      if (src === 'dec') val = parseInt(dec.value, 10);
-      else if (src === 'hex') val = parseInt(hex.value, 16);
-      else if (src === 'bin') val = parseInt(bin.value, 2);
-
-      if (!isNaN(val)) {
-        if (src !== 'dec') dec.value = val;
-        if (src !== 'hex') hex.value = val.toString(16).toUpperCase();
-        if (src !== 'bin') bin.value = val.toString(2);
-      }
-    }
-
-    // 數論驗證邏輯
-    function checkPrime(n) {
-      if (n <= 1) return false;
-      for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
-      return true;
-    }
-    function verifyGoldbach() {
-      let num = parseInt(document.getElementById("gb-num").value);
-      if (num <= 2 || num % 2 !== 0) {
-        document.getElementById("gb-result").innerText = "請輸入大於 2 的偶數";
-        return;
-      }
-      for (let i = 2; i <= num / 2; i++) {
-        if (checkPrime(i) && checkPrime(num - i)) {
-          document.getElementById("gb-result").innerText = `驗證成功：${num} = ${i} + ${num - i}`;
-          return;
+      customChartInstance = new Chart(ctx, {
+        type: type,
+        data: {
+          labels: labels,
+          datasets: [{
+            label: title,
+            data: data,
+            backgroundColor: [
+              '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'
+            ],
+            borderColor: '#1e293b',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#f8fafc' } }
+          },
+          scales: type !== 'pie' ? {
+            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+          } : {}
         }
-      }
+      });
     }
+
+    // 複利趨勢圖繪製邏輯
+    let financeChartInstance = null;
+    function renderFinanceChart() {
+      const ctx = document.getElementById('financeCanvas').getContext('2d');
+      const m = parseFloat(document.getElementById('invest-m').value) || 0;
+      const rate = (parseFloat(document.getElementById('invest-r').value) || 0) / 100 / 12;
+      const years = parseInt(document.getElementById('invest-y').value) || 0;
+
+      let labels = [];
+      let principalData = []; // 本金
+      let totalData = [];     // 本利和
+
+      let currentTotal = 0;
+      for (let y = 1; y <= years; y++) {
+        labels.push(`第 ${y} 年`);
+        for (let month = 0; month < 12; month++) {
+          currentTotal = (currentTotal + m) * (1 + rate);
+        }
+        principalData.push(m * 12 * y);
+        totalData.push(Math.round(currentTotal));
+      }
+
+      if (financeChartInstance) financeChartInstance.destroy();
+
+      financeChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: '預估資產總額 (本利和)',
+              data: totalData,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.2)',
+              fill: true
+            },
+            {
+              label: '投入總本金',
+              data: principalData,
+              borderColor: '#3b82f6',
+              borderDash: [5, 5]
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#f8fafc' } }
+          },
+          scales: {
+            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+          }
+        }
+      });
+    }
+
+    // 頁面加載時自動生成預設圖表
+    window.onload = () => {
+      generateChart();
+      renderFinanceChart();
+    };
   </script>
 </body>
 </html>
