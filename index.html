@@ -59,8 +59,9 @@
 
     /* Chart Components */
     .chart-container { position: relative; width: 100%; height: 350px; }
-    .img-preview-box { border: 2px dashed var(--border); padding: 15px; border-radius: 6px; text-align: center; cursor: pointer; }
-    .img-preview-box img { max-width: 100%; max-height: 150px; border-radius: 6px; margin-top: 10px; display: none; }
+    .img-preview-box { border: 2px dashed var(--border); padding: 20px; border-radius: 6px; text-align: center; cursor: pointer; background: rgba(255,255,255,0.02); }
+    .img-preview-box:hover { border-color: var(--accent); }
+    .img-preview-box img { max-width: 100%; max-height: 200px; border-radius: 6px; margin-top: 10px; display: none; }
   </style>
 </head>
 <body>
@@ -91,26 +92,26 @@
   <!-- 主工作區 -->
   <main id="main-content">
 
-    <!-- 1. 微積分 (連鎖律 & 偏微分) -->
+    <!-- 1. 微積分 -->
     <div id="page-calculus" class="page active">
       <div class="page-title">微積分計算器 (支援連鎖律與偏微分)</div>
       <div class="grid-2">
         <div class="card form-group">
           <h3>微分 (含連鎖律 & 多變數偏微分)</h3>
-          <label>輸入函數 $f(x, y)$ (例如：sin(x^2 + 1) 或 x^3 * y^2 + sin(y))</label>
+          <label>輸入函數 f(x, y) (例如：sin(x^2 + 1) 或 x^3 * y^2 + sin(y))</label>
           <input type="text" id="diff-expr" value="sin(x^2 + 1)" />
           <label>對哪一個變數微分？</label>
           <select id="diff-var">
             <option value="x">x</option>
             <option value="y">y</option>
           </select>
-          <button class="primary" onclick="calcDerivative()">計算偏微分 $\frac{\partial f}{\partial v}$</button>
+          <button class="primary" onclick="calcDerivative()">計算偏微分 (∂f / ∂v)</button>
           <div id="diff-result" class="result-box">導函數：-</div>
         </div>
 
         <div class="card form-group">
           <h3>定積分 (Definite Integral)</h3>
-          <label>輸入函數 $f(x)$ (例如：x^2 + sin(x))</label>
+          <label>輸入函數 f(x) (例如：x^2 + sin(x))</label>
           <input type="text" id="integ-expr" value="x^2" />
           <div style="display: flex; gap: 10px;">
             <div style="flex:1;">
@@ -122,7 +123,7 @@
               <input type="number" id="integ-b" value="3" />
             </div>
           </div>
-          <button class="primary" onclick="calcIntegral()">計算定積分 $\int_a^b f(x) dx$</button>
+          <button class="primary" onclick="calcIntegral()">計算定積分 ∫ f(x) dx</button>
           <div id="integ-result" class="result-box">積分數值：-</div>
         </div>
       </div>
@@ -133,7 +134,7 @@
       <div class="page-title">方程式繪圖與求解器</div>
       <div class="grid-2">
         <div class="card form-group">
-          <h3>輸入任意方程式 $f(x) = 0$</h3>
+          <h3>輸入任意方程式 f(x) = 0</h3>
           <label>方程式內文 (例如：x^3 - 3*x + 1 或 sin(x) - 0.5)</label>
           <input type="text" id="eq-expr" value="x^3 - 3*x + 1" />
           
@@ -153,7 +154,7 @@
         </div>
 
         <div class="card">
-          <h3>方程式圖形預覽 ($y = f(x)$)</h3>
+          <h3>方程式圖形預覽 (y = f(x))</h3>
           <div class="chart-container">
             <canvas id="eqCanvas"></canvas>
           </div>
@@ -161,19 +162,19 @@
       </div>
     </div>
 
-    <!-- 3. 圖片數據生成圖表 -->
+    <!-- 3. 貼上圖片生成圖表 -->
     <div id="page-ai-chart" class="page">
       <div class="page-title">貼上圖片生成圖表</div>
       <div class="grid-2">
         <div class="card form-group">
-          <h3>上傳或貼上圖片 (Ctrl+V)</h3>
-          <div class="img-preview-box" onclick="document.getElementById('file-input').click()">
-            <p id="upload-text">點擊上傳圖片，或按 Ctrl+V 貼上截圖</p>
+          <h3>上傳或直接貼上圖片</h3>
+          <div class="img-preview-box" tabindex="0" id="drop-area" onclick="document.getElementById('file-input').click()">
+            <p id="upload-text">點擊上傳圖片，或在本頁面直接按 Ctrl+V 貼上截圖</p>
             <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="handleImageUpload(this.files[0])">
             <img id="preview-img" alt="圖片預覽" />
           </div>
 
-          <h3>選擇生成圖表類型</h3>
+          <label style="margin-top:10px;">選擇圖表類型</label>
           <select id="ai-chart-type">
             <option value="bar">長條圖 (Bar Chart)</option>
             <option value="line">折線圖 (Line Chart)</option>
@@ -182,7 +183,7 @@
         </div>
 
         <div class="card">
-          <h3>圖表預覽</h3>
+          <h3>圖片解析與圖表預覽</h3>
           <div class="chart-container">
             <canvas id="aiCanvas"></canvas>
           </div>
@@ -269,7 +270,7 @@
       </div>
     </div>
 
-    <!-- 6. 全能單位換算器 -->
+    <!-- 6. 全能單位換算器 (升級版：含壓力、能源、功率) -->
     <div id="page-converter" class="page">
       <div class="page-title">全能單位換算器</div>
       <div class="card grid-2">
@@ -279,6 +280,12 @@
             <option value="length">長度</option>
             <option value="weight">重量</option>
             <option value="area">面積</option>
+            <option value="volume">體積 / 容量</option>
+            <option value="speed">速度</option>
+            <option value="temp">溫度</option>
+            <option value="pressure">壓力</option>
+            <option value="energy">能源 / 能量</option>
+            <option value="power">功率</option>
           </select>
         </div>
         <div></div>
@@ -361,7 +368,7 @@
       event.target.classList.add('active');
     }
 
-    // --- 1. 微積分運算 (連鎖律與偏微分) ---
+    // --- 1. 微積分運算 ---
     function calcDerivative() {
       try {
         const expr = document.getElementById('diff-expr').value;
@@ -422,7 +429,6 @@
           labels.push(x.toFixed(2));
           data.push(y);
 
-          // 二分搜尋尋找實數根 (變號處)
           if (prevY * y <= 0 && i > 0) {
             let root = bisectionSolve(compiled, prevX, x);
             if (root !== null) roots.push(root.toFixed(4));
@@ -432,14 +438,12 @@
           prevY = y;
         }
 
-        // 顯示求解結果
         if (roots.length > 0) {
           document.getElementById('eq-result').innerText = `在區間 [${xmin}, ${xmax}] 的實數解：\nx = ${roots.join(', ')}`;
         } else {
           document.getElementById('eq-result').innerText = `在區間 [${xmin}, ${xmax}] 內未找到實數根`;
         }
 
-        // 繪製圖形
         if (eqChartInstance) eqChartInstance.destroy();
 
         eqChartInstance = new Chart(ctx, {
@@ -471,7 +475,6 @@
       }
     }
 
-    // 二分法數值求解
     function bisectionSolve(f, a, b) {
       let fa = f.evaluate({x: a, y: 0});
       let fb = f.evaluate({x: b, y: 0});
@@ -493,13 +496,13 @@
       return mid;
     }
 
-    // --- 貼圖圖片數據解析 ---
-    let aiChartInstance = null;
+    // --- 3. 剪貼簿圖片貼上 (Ctrl+V 全域支援) ---
     window.addEventListener('paste', (e) => {
-      const items = e.clipboardData.items;
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
       for (let item of items) {
         if (item.type.indexOf('image') !== -1) {
-          handleImageUpload(item.getAsFile());
+          const file = item.getAsFile();
+          handleImageUpload(file);
           break;
         }
       }
@@ -512,12 +515,13 @@
         const img = document.getElementById('preview-img');
         img.src = e.target.result;
         img.style.display = 'block';
-        document.getElementById('upload-text').innerText = `已載入：${file.name || '截圖'}`;
+        document.getElementById('upload-text').innerText = `已載入圖片：${file.name || '貼上之截圖'}`;
+        document.getElementById('status-msg').innerText = '圖片載入完成！';
       };
       reader.readAsDataURL(file);
     }
 
-    // --- 自訂圖表繪製 ---
+    // --- 4. 自訂圖表繪製 ---
     let customChartInstance = null;
     function generateCustomChart() {
       const ctx = document.getElementById('customCanvas').getContext('2d');
@@ -552,7 +556,7 @@
       });
     }
 
-    // --- 工程計算機邏輯 ---
+    // --- 5. 工程計算機邏輯 ---
     let expr = "";
     function pressCalc(v) {
       if (expr === "0") expr = "";
@@ -576,12 +580,19 @@
       }
     }
 
-    // --- 單位換算 ---
+    // --- 6. 擴充版單位換算 (含壓力、能量、功率) ---
     const units = {
-      length: { "公尺 (m)": 1, "公里 (km)": 1000, "公分 (cm)": 0.01, "英吋 (in)": 0.0254 },
-      weight: { "公斤 (kg)": 1, "公克 (g)": 0.001, "台斤": 0.6, "磅 (lb)": 0.453592 },
-      area: { "平方公尺 (m²)": 1, "公頃": 10000, "坪": 3.30579 }
+      length: { "公尺 (m)": 1, "公里 (km)": 1000, "公分 (cm)": 0.01, "毫米 (mm)": 0.001, "英吋 (in)": 0.0254, "英呎 (ft)": 0.3048, "碼 (yd)": 0.9144, "英里 (mi)": 1609.34 },
+      weight: { "公斤 (kg)": 1, "公克 (g)": 0.001, "毫克 (mg)": 0.000001, "台斤": 0.6, "磅 (lb)": 0.453592, "盎司 (oz)": 0.0283495, "公噸 (t)": 1000 },
+      area: { "平方公尺 (m²)": 1, "平方公里 (km²)": 1000000, "公頃": 10000, "坪": 3.30579, "甲": 9699.17, "英畝 (acre)": 4046.86 },
+      volume: { "公升 (L)": 1, "毫升 (mL)": 0.001, "立方公尺 (m³)": 1000, "加侖 (gal)": 3.78541, "美制液體盎司 (fl oz)": 0.0295735 },
+      speed: { "公尺/秒 (m/s)": 1, "公里/小時 (km/h)": 0.277778, "英里/小時 (mph)": 0.44704, "節 (knot)": 0.514444 },
+      temp: { "攝氏 (°C)": "c", "華氏 (°F)": "f", "克氏 (K)": "k" },
+      pressure: { "帕斯卡 (Pa)": 1, "千帕 (kPa)": 1000, "巴 (bar)": 100000, "標準大氣壓 (atm)": 101325, "毫米汞柱 (mmHg)": 133.322, "磅/平方吋 (psi)": 6894.76 },
+      energy: { "焦耳 (J)": 1, "千焦 (kJ)": 1000, "卡路里 (cal)": 4.184, "大卡 (kcal)": 4184, "瓦特小時 (Wh)": 3600, "千瓦小時 (kWh / 度電)": 3600000, "英熱單位 (BTU)": 1055.06 },
+      power: { "瓦特 (W)": 1, "千瓦 (kW)": 1000, "百萬瓦 (MW)": 1000000, "公制馬力 (PS)": 735.499, "英制馬力 (hp)": 745.7 }
     };
+
     function updateUnitOptions() {
       const cat = document.getElementById("unit-cat").value;
       const u1 = document.getElementById("unit-u1");
@@ -593,19 +604,39 @@
       });
       execUnitConvert();
     }
+
     function execUnitConvert() {
       const cat = document.getElementById("unit-cat").value;
       const val = parseFloat(document.getElementById("unit-v1").value) || 0;
       const k1 = document.getElementById("unit-u1").value;
       const k2 = document.getElementById("unit-u2").value;
+
+      if (cat === "temp") {
+        document.getElementById("unit-v2").value = convertTemperature(val, units[cat][k1], units[cat][k2]).toFixed(2);
+        return;
+      }
+
       if (units[cat] && units[cat][k1] && units[cat][k2]) {
         let base = val * units[cat][k1];
-        document.getElementById("unit-v2").value = (base / units[cat][k2]).toFixed(4);
+        let result = base / units[cat][k2];
+        // 動態小數位數顯示：若極小則採科學記號，否則留6位
+        document.getElementById("unit-v2").value = (Math.abs(result) < 0.000001 && result !== 0) ? result.toExponential(4) : parseFloat(result.toFixed(6));
       }
+    }
+
+    function convertTemperature(val, from, to) {
+      let celsius = val;
+      if (from === 'f') celsius = (val - 32) * (5 / 9);
+      if (from === 'k') celsius = val - 273.15;
+
+      if (to === 'c') return celsius;
+      if (to === 'f') return celsius * (9 / 5) + 32;
+      if (to === 'k') return celsius + 273.15;
+      return celsius;
     }
     updateUnitOptions();
 
-    // --- 理財試算 ---
+    // --- 7. 理財試算 ---
     function calcLoan() {
       let p = parseFloat(document.getElementById("loan-amount").value) * 10000;
       let r = parseFloat(document.getElementById("loan-rate").value) / 100 / 12;
@@ -613,6 +644,7 @@
       let m = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
       document.getElementById("loan-result").innerText = `每月還款：${Math.round(m)} 元`;
     }
+
     function calcCompound() {
       let m = parseFloat(document.getElementById("comp-m").value);
       let r = parseFloat(document.getElementById("comp-r").value) / 100 / 12;
@@ -621,7 +653,7 @@
       document.getElementById("comp-result").innerText = `資產總值：${Math.round(fv)} 元`;
     }
 
-    // --- 進位轉換 ---
+    // --- 8. 進位轉換 ---
     function convertBase(src) {
       let dec = document.getElementById("prog-dec");
       let hex = document.getElementById("prog-hex");
@@ -638,12 +670,13 @@
       }
     }
 
-    // --- 哥德巴赫驗證 ---
+    // --- 9. 哥德巴赫驗證 ---
     function checkPrime(n) {
       if (n <= 1) return false;
       for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;
       return true;
     }
+
     function verifyGoldbach() {
       let num = parseInt(document.getElementById("gb-num").value);
       if (num <= 2 || num % 2 !== 0) {
