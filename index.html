@@ -6,7 +6,7 @@
   <title>高級萬能計算機 Pro</title>
   <!-- Chart.js 圖表庫 -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Math.js 高級數學與符號運算庫 -->
+  <!-- Math.js 高級數學運算庫 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
   <style>
     :root {
@@ -70,17 +70,16 @@
     <div class="logo">萬能計算機 Pro</div>
     <nav>
       <div class="nav-category">高等數學運算</div>
-      <button class="nav-btn active" onclick="switchTab('page-calculus', event)">微積分計算器</button>
-      <button class="nav-btn" onclick="switchTab('page-equation', event)">方程式求解器</button>
+      <button class="nav-btn active" onclick="switchTab('page-calculus', event)">微積分 (連鎖律/偏微分)</button>
+      <button class="nav-btn" onclick="switchTab('page-equation', event)">方程式繪圖與求解器</button>
 
       <div class="nav-category">數據與視覺化圖表</div>
-      <button class="nav-btn" onclick="switchTab('page-ai-chart', event)">貼圖/提示字生成圖表</button>
+      <button class="nav-btn" onclick="switchTab('page-ai-chart', event)">圖片數據生成圖表</button>
       <button class="nav-btn" onclick="switchTab('page-chart', event)">統計圖表生成器</button>
 
       <div class="nav-category">核心運算</div>
       <button class="nav-btn" onclick="switchTab('page-calc', event)">工程與標準計算機</button>
       <button class="nav-btn" onclick="switchTab('page-converter', event)">全能單位換算器</button>
-      <button class="nav-btn" onclick="switchTab('page-graph', event)">2D 函數繪圖儀</button>
 
       <div class="nav-category">專業工具</div>
       <button class="nav-btn" onclick="switchTab('page-finance', event)">理財與複利試算</button>
@@ -92,15 +91,20 @@
   <!-- 主工作區 -->
   <main id="main-content">
 
-    <!-- 1. 新增：微積分計算器 -->
+    <!-- 1. 微積分 (連鎖律 & 偏微分) -->
     <div id="page-calculus" class="page active">
-      <div class="page-title">微積分計算器</div>
+      <div class="page-title">微積分計算器 (支援連鎖律與偏微分)</div>
       <div class="grid-2">
         <div class="card form-group">
-          <h3>微分 (Symbolic Derivative)</h3>
-          <label>輸入函數 $f(x)$ (例如：x^3 + 2*x^2 - 5*x + 3)</label>
-          <input type="text" id="diff-expr" value="x^3 + 2*x^2 - 5*x + 3" />
-          <button class="primary" onclick="calcDerivative()">計算一階導函數 $f'(x)$</button>
+          <h3>微分 (含連鎖律 & 多變數偏微分)</h3>
+          <label>輸入函數 $f(x, y)$ (例如：sin(x^2 + 1) 或 x^3 * y^2 + sin(y))</label>
+          <input type="text" id="diff-expr" value="sin(x^2 + 1)" />
+          <label>對哪一個變數微分？</label>
+          <select id="diff-var">
+            <option value="x">x</option>
+            <option value="y">y</option>
+          </select>
+          <button class="primary" onclick="calcDerivative()">計算偏微分 $\frac{\partial f}{\partial v}$</button>
           <div id="diff-result" class="result-box">導函數：-</div>
         </div>
 
@@ -124,71 +128,61 @@
       </div>
     </div>
 
-    <!-- 2. 新增：方程式求解器 -->
+    <!-- 2. 方程式繪圖與求解器 -->
     <div id="page-equation" class="page">
-      <div class="page-title">方程式求解器</div>
+      <div class="page-title">方程式繪圖與求解器</div>
       <div class="grid-2">
-        <!-- 一元二次方程式 -->
         <div class="card form-group">
-          <h3>一元二次方程式求解 ($ax^2 + bx + c = 0$)</h3>
-          <label>係數 a</label>
-          <input type="number" id="eq-a" value="1" />
-          <label>係數 b</label>
-          <input type="number" id="eq-b" value="-5" />
-          <label>係數 c</label>
-          <input type="number" id="eq-c" value="6" />
-          <button class="primary" onclick="solveQuadratic()">求解 $x$</button>
-          <div id="quad-result" class="result-box">解：-</div>
+          <h3>輸入任意方程式 $f(x) = 0$</h3>
+          <label>方程式內文 (例如：x^3 - 3*x + 1 或 sin(x) - 0.5)</label>
+          <input type="text" id="eq-expr" value="x^3 - 3*x + 1" />
+          
+          <div style="display: flex; gap: 10px;">
+            <div style="flex:1;">
+              <label>X 軸最小值</label>
+              <input type="number" id="eq-xmin" value="-5" />
+            </div>
+            <div style="flex:1;">
+              <label>X 軸最大值</label>
+              <input type="number" id="eq-xmax" value="5" />
+            </div>
+          </div>
+
+          <button class="primary" onclick="solveAndPlotEquation()">畫圖並求解 (實數根)</button>
+          <div id="eq-result" class="result-box">方程式的解：-</div>
         </div>
 
-        <!-- 二元一次聯立方程式 -->
-        <div class="card form-group">
-          <h3>二元一次聯立方程式求解</h3>
-          <p style="font-size:0.85rem; color:var(--text-muted);">
-            $a_1 x + b_1 y = c_1$<br>
-            $a_2 x + b_2 y = c_2$
-          </p>
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
-            <input type="number" id="sys-a1" placeholder="a1" value="2" />
-            <input type="number" id="sys-b1" placeholder="b1" value="1" />
-            <input type="number" id="sys-c1" placeholder="c1" value="5" />
-            <input type="number" id="sys-a2" placeholder="a2" value="1" />
-            <input type="number" id="sys-b2" placeholder="b2" value="-1" />
-            <input type="number" id="sys-c2" placeholder="c2" value="1" />
+        <div class="card">
+          <h3>方程式圖形預覽 ($y = f(x)$)</h3>
+          <div class="chart-container">
+            <canvas id="eqCanvas"></canvas>
           </div>
-          <button class="primary" onclick="solveSystem()">求解 $(x, y)$</button>
-          <div id="sys-result" class="result-box">解：-</div>
         </div>
       </div>
     </div>
 
-    <!-- 3. 貼圖與提示字生成圖表 -->
+    <!-- 3. 圖片數據生成圖表 -->
     <div id="page-ai-chart" class="page">
-      <div class="page-title">貼上圖片 / 提示字生成圖表</div>
+      <div class="page-title">貼上圖片生成圖表</div>
       <div class="grid-2">
         <div class="card form-group">
-          <h3>1. 上傳或貼上圖片 (Ctrl+V)</h3>
+          <h3>上傳或貼上圖片 (Ctrl+V)</h3>
           <div class="img-preview-box" onclick="document.getElementById('file-input').click()">
             <p id="upload-text">點擊上傳圖片，或按 Ctrl+V 貼上截圖</p>
             <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="handleImageUpload(this.files[0])">
             <img id="preview-img" alt="圖片預覽" />
           </div>
 
-          <h3>2. 輸入提示字 (Prompt)</h3>
-          <textarea id="prompt-input" rows="3" placeholder="例如：國文 80, 英文 75, 數學 90, 自然 85"></textarea>
-
-          <h3>3. 選擇圖表類型</h3>
+          <h3>選擇生成圖表類型</h3>
           <select id="ai-chart-type">
             <option value="bar">長條圖 (Bar Chart)</option>
             <option value="line">折線圖 (Line Chart)</option>
             <option value="pie">圓餅圖 (Pie Chart)</option>
           </select>
-
-          <button class="primary" onclick="processPromptAndImage()">解析數據並繪製圖表</button>
         </div>
 
         <div class="card">
-          <h3>生成圖表結果</h3>
+          <h3>圖表預覽</h3>
           <div class="chart-container">
             <canvas id="aiCanvas"></canvas>
           </div>
@@ -301,22 +295,7 @@
       </div>
     </div>
 
-    <!-- 7. 2D 函數繪圖儀 -->
-    <div id="page-graph" class="page">
-      <div class="page-title">2D 函數繪圖儀</div>
-      <div class="card grid-2" style="align-items: center;">
-        <div class="form-group">
-          <label>方程式 $f(x)$ (例如：Math.sin(x), x*x - 2)</label>
-          <input type="text" id="graph-expr" value="Math.sin(x)" />
-        </div>
-        <button class="primary" onclick="renderGraph()">繪製圖形</button>
-      </div>
-      <div class="card" style="flex: 1; min-height: 320px; display: flex; justify-content: center; align-items: center;">
-        <canvas id="graph-canvas" width="600" height="320" style="background:#000; border-radius:6px;"></canvas>
-      </div>
-    </div>
-
-    <!-- 8. 理財與複利試算 -->
+    <!-- 7. 理財與複利試算 -->
     <div id="page-finance" class="page">
       <div class="page-title">理財與複利試算</div>
       <div class="grid-2">
@@ -346,7 +325,7 @@
       </div>
     </div>
 
-    <!-- 9. 程式員進位轉換 -->
+    <!-- 8. 程式員進位轉換 -->
     <div id="page-programmer" class="page">
       <div class="page-title">程式員進位轉換</div>
       <div class="card form-group">
@@ -359,7 +338,7 @@
       </div>
     </div>
 
-    <!-- 10. 數據數論驗證 -->
+    <!-- 9. 數據數論驗證 -->
     <div id="page-stats" class="page">
       <div class="page-title">數據數論驗證</div>
       <div class="card form-group" style="max-width: 500px;">
@@ -382,14 +361,15 @@
       event.target.classList.add('active');
     }
 
-    // --- 微積分運算 ---
+    // --- 1. 微積分運算 (連鎖律與偏微分) ---
     function calcDerivative() {
       try {
         const expr = document.getElementById('diff-expr').value;
-        const result = math.derivative(expr, 'x').toString();
-        document.getElementById('diff-result').innerText = `f'(x) = ${result}`;
+        const v = document.getElementById('diff-var').value;
+        const result = math.derivative(expr, v).toString();
+        document.getElementById('diff-result').innerText = `∂f/∂${v} = ${result}`;
       } catch (err) {
-        document.getElementById('diff-result').innerText = '計算錯誤：請確認公式格式';
+        document.getElementById('diff-result').innerText = '計算錯誤：請確認輸入格式 (例如 x^2 + sin(x))';
       }
     }
 
@@ -399,7 +379,6 @@
         const a = parseFloat(document.getElementById('integ-a').value);
         const b = parseFloat(document.getElementById('integ-b').value);
         
-        // 辛普森法 (Simpson's rule) 進行數值積分
         const f = math.compile(expr);
         const n = 1000;
         const h = (b - a) / n;
@@ -416,51 +395,105 @@
       }
     }
 
-    // --- 方程式求解器 ---
-    function solveQuadratic() {
-      const a = parseFloat(document.getElementById('eq-a').value);
-      const b = parseFloat(document.getElementById('eq-b').value);
-      const c = parseFloat(document.getElementById('eq-c').value);
+    // --- 2. 方程式繪圖與求解 ---
+    let eqChartInstance = null;
+    function solveAndPlotEquation() {
+      const expr = document.getElementById('eq-expr').value;
+      const xmin = parseFloat(document.getElementById('eq-xmin').value);
+      const xmax = parseFloat(document.getElementById('eq-xmax').value);
+      const ctx = document.getElementById('eqCanvas').getContext('2d');
 
-      if (a === 0) {
-        document.getElementById('quad-result').innerText = 'a 不能為 0';
-        return;
-      }
+      try {
+        const compiled = math.compile(expr);
+        let labels = [];
+        let data = [];
+        let roots = [];
 
-      const disc = b * b - 4 * a * c;
-      if (disc > 0) {
-        const x1 = (-b + Math.sqrt(disc)) / (2 * a);
-        const x2 = (-b - Math.sqrt(disc)) / (2 * a);
-        document.getElementById('quad-result').innerText = `兩實根：x1 = ${x1.toFixed(4)}, x2 = ${x2.toFixed(4)}`;
-      } else if (disc === 0) {
-        const x = -b / (2 * a);
-        document.getElementById('quad-result').innerText = `重根：x = ${x.toFixed(4)}`;
-      } else {
-        const real = (-b / (2 * a)).toFixed(4);
-        const imag = (Math.sqrt(-disc) / (2 * a)).toFixed(4);
-        document.getElementById('quad-result').innerText = `複數根：x = ${real} ± ${imag}i`;
+        const steps = 200;
+        const stepSize = (xmax - xmin) / steps;
+
+        let prevX = xmin;
+        let prevY = compiled.evaluate({x: prevX, y: 0});
+
+        for (let i = 0; i <= steps; i++) {
+          let x = xmin + i * stepSize;
+          let y = compiled.evaluate({x: x, y: 0});
+
+          labels.push(x.toFixed(2));
+          data.push(y);
+
+          // 二分搜尋尋找實數根 (變號處)
+          if (prevY * y <= 0 && i > 0) {
+            let root = bisectionSolve(compiled, prevX, x);
+            if (root !== null) roots.push(root.toFixed(4));
+          }
+
+          prevX = x;
+          prevY = y;
+        }
+
+        // 顯示求解結果
+        if (roots.length > 0) {
+          document.getElementById('eq-result').innerText = `在區間 [${xmin}, ${xmax}] 的實數解：\nx = ${roots.join(', ')}`;
+        } else {
+          document.getElementById('eq-result').innerText = `在區間 [${xmin}, ${xmax}] 內未找到實數根`;
+        }
+
+        // 繪製圖形
+        if (eqChartInstance) eqChartInstance.destroy();
+
+        eqChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: `f(x) = ${expr}`,
+              data: data,
+              borderColor: '#3b82f6',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#f8fafc' } } },
+            scales: {
+              x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+              y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+            }
+          }
+        });
+
+      } catch (err) {
+        document.getElementById('eq-result').innerText = '方程式解析失敗，請確認語法';
       }
     }
 
-    function solveSystem() {
-      const a1 = parseFloat(document.getElementById('sys-a1').value);
-      const b1 = parseFloat(document.getElementById('sys-b1').value);
-      const c1 = parseFloat(document.getElementById('sys-c1').value);
-      const a2 = parseFloat(document.getElementById('sys-a2').value);
-      const b2 = parseFloat(document.getElementById('sys-b2').value);
-      const c2 = parseFloat(document.getElementById('sys-c2').value);
+    // 二分法數值求解
+    function bisectionSolve(f, a, b) {
+      let fa = f.evaluate({x: a, y: 0});
+      let fb = f.evaluate({x: b, y: 0});
+      if (fa * fb > 0) return null;
 
-      const det = a1 * b2 - a2 * b1;
-      if (det === 0) {
-        document.getElementById('sys-result').innerText = '無解或有無限多組解 (行列式 = 0)';
-      } else {
-        const x = (c1 * b2 - c2 * b1) / det;
-        const y = (a1 * c2 - a2 * c1) / det;
-        document.getElementById('sys-result').innerText = `解為：x = ${x.toFixed(4)}, y = ${y.toFixed(4)}`;
+      let mid = a;
+      for (let i = 0; i < 30; i++) {
+        mid = (a + b) / 2;
+        let fmid = f.evaluate({x: mid, y: 0});
+        if (Math.abs(fmid) < 1e-7) break;
+        if (fa * fmid < 0) {
+          b = mid;
+          fb = fmid;
+        } else {
+          a = mid;
+          fa = fmid;
+        }
       }
+      return mid;
     }
 
-    // --- AI 提示字與貼圖繪圖 ---
+    // --- 貼圖圖片數據解析 ---
     let aiChartInstance = null;
     window.addEventListener('paste', (e) => {
       const items = e.clipboardData.items;
@@ -479,65 +512,9 @@
         const img = document.getElementById('preview-img');
         img.src = e.target.result;
         img.style.display = 'block';
-        document.getElementById('upload-text').innerText = `已載入：${file.name || '貼上之截圖'}`;
+        document.getElementById('upload-text').innerText = `已載入：${file.name || '截圖'}`;
       };
       reader.readAsDataURL(file);
-    }
-
-    function processPromptAndImage() {
-      const prompt = document.getElementById('prompt-input').value.trim();
-      const type = document.getElementById('ai-chart-type').value;
-      const status = document.getElementById('status-msg');
-
-      if (!prompt) {
-        alert('請先輸入提示字（例如：蘋果 50, 香蕉 30）');
-        return;
-      }
-
-      const matches = [...prompt.matchAll(/([\u4e00-\u9fa5\w]+)[\s:：,，=]+(\d+\.?\d*)/g)];
-      let labels = [], data = [];
-
-      if (matches.length > 0) {
-        matches.forEach(m => { labels.push(m[1]); data.push(parseFloat(m[2])); });
-      } else {
-        const numbers = prompt.match(/\d+\.?\d*/g);
-        if (numbers) {
-          data = numbers.map(n => parseFloat(n));
-          labels = data.map((_, i) => `項目 ${i + 1}`);
-        }
-      }
-
-      if (data.length === 0) {
-        status.innerText = '未偵測到有效數據，請輸入包含「名稱 數字」的內容。';
-        return;
-      }
-
-      const ctx = document.getElementById('aiCanvas').getContext('2d');
-      if (aiChartInstance) aiChartInstance.destroy();
-
-      aiChartInstance = new Chart(ctx, {
-        type: type,
-        data: {
-          labels: labels,
-          datasets: [{
-            label: '提示字數據解析',
-            data: data,
-            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
-            borderColor: '#1e293b',
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: '#f8fafc' } } },
-          scales: type !== 'pie' ? {
-            x: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
-            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
-          } : {}
-        }
-      });
-      status.innerText = `成功生成！共有 ${data.length} 筆數據。`;
     }
 
     // --- 自訂圖表繪製 ---
@@ -575,7 +552,7 @@
       });
     }
 
-    // --- 計算機邏輯 ---
+    // --- 工程計算機邏輯 ---
     let expr = "";
     function pressCalc(v) {
       if (expr === "0") expr = "";
@@ -627,34 +604,6 @@
       }
     }
     updateUnitOptions();
-
-    // --- 2D 繪圖 ---
-    function renderGraph() {
-      const canvas = document.getElementById("graph-canvas");
-      const ctx = canvas.getContext("2d");
-      const formula = document.getElementById("graph-expr").value;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = "#334155";
-      ctx.beginPath();
-      ctx.moveTo(0, 160); ctx.lineTo(600, 160);
-      ctx.moveTo(300, 0); ctx.lineTo(300, 320);
-      ctx.stroke();
-      ctx.strokeStyle = "#3b82f6";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      let started = false;
-      for (let px = 0; px < 600; px++) {
-        let x = (px - 300) / 30;
-        try {
-          let y = eval(formula);
-          let py = 160 - (y * 30);
-          if (!started) { ctx.moveTo(px, py); started = true; }
-          else { ctx.lineTo(px, py); }
-        } catch (e) {}
-      }
-      ctx.stroke();
-    }
-    renderGraph();
 
     // --- 理財試算 ---
     function calcLoan() {
@@ -710,9 +659,9 @@
     }
 
     window.onload = () => {
-      generateCustomChart();
       calcDerivative();
       calcIntegral();
+      solveAndPlotEquation();
     };
   </script>
 </body>
